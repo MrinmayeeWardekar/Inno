@@ -17,7 +17,7 @@ const generateToken = (id) => jwt.sign({ id }, process.env.JWT_SECRET, { expires
 passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: '/api/auth/google/callback',
+  callbackURL: 'https://innoventure-backend.onrender.com/api/auth/google/callback',
   passReqToCallback: true
 }, async (req, accessToken, refreshToken, profile, done) => {
   try {

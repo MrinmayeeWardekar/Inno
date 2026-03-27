@@ -55,7 +55,7 @@ export default function LearnerDashboard() {
     API.get('/courses').then(r => setCourses(Array.isArray(r.data) ? r.data : [])).catch(() => {});
     API.get('/live').then(r => setLiveSessions(Array.isArray(r.data) ? r.data : [])).catch(() => {});
 
-    const socket = io('http://https://innoventure-backend.onrender.com');
+    const socket = io('https://innoventure-backend.onrender.com');
     socket.on('session-started', (data) => {
       toast.success(`🔴 ${data.tutorName} just went live: "${data.title}"`, { duration: 5000 });
       API.get('/live').then(r => setLiveSessions(Array.isArray(r.data) ? r.data : [])).catch(() => {});
@@ -265,7 +265,7 @@ export default function LearnerDashboard() {
                     onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-6px)'; e.currentTarget.style.borderColor = 'rgba(123,94,167,0.4)'; e.currentTarget.style.boxShadow = '0 20px 60px rgba(123,94,167,0.15)'; }}
                     onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'; e.currentTarget.style.boxShadow = 'none'; }}>
                     <div style={{ height: 130, background: 'linear-gradient(135deg, rgba(123,94,167,0.3), rgba(232,84,122,0.2))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 48, position: 'relative', overflow: 'hidden' }}>
-                      {c.thumbnail ? <img src={`http://https://innoventure-backend.onrender.com${c.thumbnail}`} alt={c.title} style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }} /> : categoryEmoji(c.category)}
+                      {c.thumbnail ? <img src={`https://innoventure-backend.onrender.com${c.thumbnail}`} alt={c.title} style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }} /> : categoryEmoji(c.category)}
                       <div style={{ position: 'absolute', top: 10, right: 10, padding: '3px 10px', background: 'rgba(0,0,0,0.7)', borderRadius: 99, fontSize: 11, fontWeight: 700, color: c.price === 0 ? '#2de08e' : '#ffd700' }}>
                         {c.price === 0 ? 'FREE' : `₹${c.price}`}
                       </div>

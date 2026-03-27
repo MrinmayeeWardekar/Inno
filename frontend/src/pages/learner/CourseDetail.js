@@ -78,7 +78,7 @@ export default function CourseDetail() {
           {/* Video Player */}
           {activeLesson?.content && activeLesson.type === 'video' ? (
             <div style={{ borderRadius: 20, overflow: 'hidden', marginBottom: 32, background: '#000', position: 'relative' }}>
-              <video ref={videoRef} controls style={{ width: '100%', maxHeight: 480, display: 'block' }} src={`http://https://innoventure-backend.onrender.com${activeLesson.content}`}
+              <video ref={videoRef} controls style={{ width: '100%', maxHeight: 480, display: 'block' }} src={`https://innoventure-backend.onrender.com${activeLesson.content}`}
                 onEnded={() => { markLesson(activeLesson._id); toast.success('Lesson complete! ⭐'); }} />
               <div style={{ padding: '16px 24px', background: 'rgba(14,11,26,0.9)' }}>
                 <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 600, color: 'white' }}>{activeLesson.title}</div>
@@ -87,7 +87,7 @@ export default function CourseDetail() {
             </div>
           ) : (
             <div style={{ height: 320, borderRadius: 20, overflow: 'hidden', marginBottom: 32, background: 'linear-gradient(135deg, rgba(123,94,167,0.3), rgba(232,84,122,0.2))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 80, position: 'relative' }}>
-              {course.thumbnail ? <img src={`http://https://innoventure-backend.onrender.com${course.thumbnail}`} alt={course.title} style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }} /> : '📚'}
+              {course.thumbnail ? <img src={`https://innoventure-backend.onrender.com${course.thumbnail}`} alt={course.title} style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }} /> : '📚'}
               {!isEnrolled && (
                 <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>
                   <div style={{ textAlign: 'center' }}>

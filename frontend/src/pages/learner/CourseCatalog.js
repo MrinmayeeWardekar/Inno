@@ -112,7 +112,7 @@ export default function CourseCatalog() {
                     <div style={{ position: 'absolute', top: 12, left: 12, zIndex: 2, padding: '4px 12px', background: 'rgba(45,224,142,0.9)', borderRadius: 99, fontSize: 11, fontWeight: 800, color: 'white' }}>✅ Enrolled</div>
                   )}
                   <div style={{ height: 160, background: 'linear-gradient(135deg, rgba(123,94,167,0.3), rgba(232,84,122,0.2))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 56, position: 'relative', overflow: 'hidden' }}>
-                    {course.thumbnail ? <img src={`http://https://innoventure-backend.onrender.com${course.thumbnail}`} alt={course.title} style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }} /> : catEmoji(course.category)}
+                    {course.thumbnail ? <img src={`https://innoventure-backend.onrender.com${course.thumbnail}`} alt={course.title} style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }} /> : catEmoji(course.category)}
                     <div style={{ position: 'absolute', top: 12, right: 12, padding: '4px 12px', background: 'rgba(0,0,0,0.7)', borderRadius: 99, fontSize: 12, fontWeight: 800, color: course.price === 0 ? 'var(--green)' : 'var(--gold)', backdropFilter: 'blur(8px)' }}>
                       {course.price === 0 ? 'FREE' : `$${course.price}`}
                     </div>
@@ -140,7 +140,7 @@ export default function CourseCatalog() {
                   onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(123,94,167,0.4)'; e.currentTarget.style.transform = 'translateX(4px)'; }}
                   onMouseLeave={e => { e.currentTarget.style.borderColor = enrolled ? 'rgba(45,224,142,0.2)' : 'rgba(255,255,255,0.06)'; e.currentTarget.style.transform = 'translateX(0)'; }}>
                   <div style={{ width: 100, background: 'linear-gradient(135deg, rgba(123,94,167,0.3), rgba(232,84,122,0.2))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36, flexShrink: 0, position: 'relative', overflow: 'hidden' }}>
-                    {course.thumbnail ? <img src={`http://https://innoventure-backend.onrender.com${course.thumbnail}`} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }} /> : catEmoji(course.category)}
+                    {course.thumbnail ? <img src={`https://innoventure-backend.onrender.com${course.thumbnail}`} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }} /> : catEmoji(course.category)}
                   </div>
                   <div style={{ flex: 1, padding: '18px 20px 18px 0' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>

@@ -5,7 +5,7 @@ import API from '../../api/axios';
 import toast from 'react-hot-toast';
 import io from 'socket.io-client';
 
-const SOCKET_URL = 'http://https://innoventure-backend.onrender.com';
+const SOCKET_URL = 'https://innoventure-backend.onrender.com';
 const ICE = [{ urls: 'stun:stun.l.google.com:19302' }];
 
 export default function TutorLive() {

@@ -5,7 +5,7 @@ import API from '../../api/axios';
 import toast from 'react-hot-toast';
 import io from 'socket.io-client';
 
-const SOCKET_URL = 'http://https://innoventure-backend.onrender.com';
+const SOCKET_URL = 'https://innoventure-backend.onrender.com';
 
 export default function LiveSessions() {
   const { user, logout } = useAuth();

@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import io from 'socket.io-client';
 import toast from 'react-hot-toast';
 
-const SOCKET_URL = 'http://https://innoventure-backend.onrender.com';
+const SOCKET_URL = 'https://innoventure-backend.onrender.com';
 const ICE = [{ urls: 'stun:stun.l.google.com:19302' }];
 
 export default function LiveRoom() {
