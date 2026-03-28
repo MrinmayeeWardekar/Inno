@@ -28,7 +28,9 @@ export default function TutorLive() {
     socketRef.current = io(SOCKET_URL, { transports: ['websocket'] });
 
     socketRef.current.on('viewerCount', count => setViewers(count));
-    socketRef.current.on('chatMessage', msg => setChatMessages(prev => [...prev.slice(-49), msg]));
+    socketRef.current.on('chat-message', ({ message, userName }) => {
+  setChatMessages(prev => [...prev.slice(-49), { message, from: userName }]);
+    });
 
     socketRef.current.on('viewerJoined', async ({ viewerId }) => {
       if (!stream) return;
@@ -61,13 +63,15 @@ export default function TutorLive() {
     try {
       const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
       setStream(mediaStream);
-      if (videoRef.current) videoRef.current.srcObject = mediaStream;
+      setTimeout(() => {
+       if (videoRef.current) videoRef.current.srcObject = mediaStream;
+         }, 100);
 
       const { data } = await API.post('/live/start', { title });
       setRoomId(data.roomId);
       setIsLive(true);
 
-      socketRef.current.emit('startLive', { roomId: data.roomId, tutorId: user._id, title });
+      socketRef.current.emit('join-room', { roomId: data.roomId, userId: user._id, userName: user.name });
 
       timerRef.current = setInterval(() => setDuration(d => d + 1), 1000);
       toast.success('You are live! 🔴');
@@ -86,10 +90,11 @@ export default function TutorLive() {
   };
 
   const sendChat = () => {
-    if (!chatInput.trim() || !roomId) return;
-    socketRef.current.emit('chatMessage', { roomId, message: chatInput, from: user.name, role: 'tutor' });
-    setChatInput('');
+  if (!chatInput.trim() || !roomId) return;
+  socketRef.current.emit('chat-message', { roomId, message: chatInput, userName: user.name });
+  setChatInput('');
   };
+  
 
   const fmt = s => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
 
