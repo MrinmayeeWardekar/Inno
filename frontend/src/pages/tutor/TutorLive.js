@@ -32,7 +32,8 @@ export default function TutorLive() {
   setChatMessages(prev => [...prev.slice(-49), { message, from: userName }]);
     });
 
-    socketRef.current.on('viewerJoined', async ({ viewerId }) => {
+    socketRef.current.on('user-joined', async ({ socketId }) => {
+      const viewerId = socketId;
       if (!stream) return;
       const pc = new RTCPeerConnection({ iceServers: ICE });
       peerRefs.current[viewerId] = pc;

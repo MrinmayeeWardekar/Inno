@@ -22,13 +22,14 @@ export default function LiveRoom() {
 
   useEffect(() => {
     socketRef.current = io(SOCKET_URL, { transports: ['websocket'] });
-    socketRef.current.emit('joinRoom', { roomId, userId: user?._id });
+    socketRef.current.emit('join-room', { roomId, userId: user?._id, userName: user?.name });
     setIsConnected(true);
 
-    socketRef.current.on('viewerCount', count => setViewers(count));
-    socketRef.current.on('chatMessage', msg => setChatMessages(prev => [...prev.slice(-49), msg]));
-    socketRef.current.on('sessionEnded', () => { toast.error('Session ended by tutor'); navigate('/live'); });
-    socketRef.current.on('sessionInfo', info => { if (info?.title) setSessionTitle(info.title); });
+    
+    socketRef.current.on('chat-message', ({ message, userName }) => {
+    setChatMessages(prev => [...prev.slice(-49), { message, from: userName }]);
+    });
+    
 
     socketRef.current.on('offer', async ({ offer, from }) => {
       pcRef.current = new RTCPeerConnection({ iceServers: ICE });
@@ -49,7 +50,7 @@ export default function LiveRoom() {
 
   const sendChat = () => {
     if (!chatInput.trim()) return;
-    socketRef.current.emit('chatMessage', { roomId, message: chatInput, from: user?.name, role: 'learner' });
+    socketRef.current.emit('chat-message', { roomId, message: chatInput, userName: user?.name });
     setChatInput('');
   };
 
