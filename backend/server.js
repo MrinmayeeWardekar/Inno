@@ -108,6 +108,11 @@ app.set('io', io);
 // Start server
 const PORT = process.env.PORT || 5001;
 
+const LiveSession = require('./models/LiveSession');
+mongoose.connection.once('open', async () => {
+  await LiveSession.updateMany({ status: 'live' }, { status: 'ended' });
+  console.log('✅ Cleared stuck live sessions');
+});
 server.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
