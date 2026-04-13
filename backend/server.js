@@ -17,6 +17,8 @@ const quizRoutes = require('./routes/quiz');
 const liveRoutes = require('./routes/live');
 const chatRoutes = require('./routes/chat');
 const recommendRoutes = require('./routes/recommendations');
+const reviewRoutes = require('./routes/reviews');
+const paymentRoutes = require('./routes/payment');
 
 const app = express();
 const server = http.createServer(app);
@@ -53,6 +55,8 @@ app.use('/api/quiz', quizRoutes);
 app.use('/api/live', liveRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/recommendations', recommendRoutes);
+app.use('/api/reviews', reviewRoutes);
+app.use('/api/payment', paymentRoutes);
 
 // Test route
 app.get('/', (req, res) => {

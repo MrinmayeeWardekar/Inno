@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mission 4 – Normalization Protocol</title>
+  <link rel="stylesheet" href="level4.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Mission Screen -->
+    <div id="mission-screen" class="grid-bg screen active">
+      <div class="mission-label">
+        <span>4</span>
+        MISSION 4 / 4
+      </div>
+
+      <div class="mission-title">Normalization Protocol</div>
+      <div class="mission-subtitle">1NF &amp; 2NF</div>
+      <div class="mission-location">📍 Schema Repair Bay</div>
+
+      <div class="bot-panel">
+        <div class="bot-avatar"></div>
+        <div>
+          <div class="bot-text-title">SYS-BOT 3000</div>
+          <div class="bot-text-body">
+            Repeating groups and partial dependencies are corrupting the training data.
+            Drag attributes into cleaner tables before anomalies overload the cluster.
+          </div>
+        </div>
+      </div>
+
+      <div class="mission-meta">
+        <div class="meta-card">
+          <div>
+            <div class="meta-label">Tool</div>
+            <div class="meta-value">Schema Fixer</div>
+          </div>
+          <div class="meta-icon">🛠️</div>
+        </div>
+
+        <div class="meta-card">
+          <div>
+            <div class="meta-label">XP Reward</div>
+            <div class="meta-value accent">+120 XP</div>
+          </div>
+          <div class="meta-icon">⚡</div>
+        </div>
+
+        <div class="meta-card">
+          <div>
+            <div class="meta-label">Difficulty</div>
+            <div class="meta-value">
+              <span class="stars">★ ★ ☆</span>
+            </div>
+          </div>
+          <div class="meta-icon">🎯</div>
+        </div>
+      </div>
+
+      <div class="mission-footer">
+        <div class="mission-hint">
+          Schema Fixer – Drag attributes to the right tables.
+          Watch for multi-valued columns and partial dependencies.
+        </div>
+
+        <div class="mission-actions">
+          <button class="btn btn-secondary" type="button" id="map-btn">
+            ← MAP
+          </button>
+
+          <button class="btn" type="button" id="begin-mission-btn">
+            <span class="icon">▶</span>
+            BEGIN MISSION
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Schema Fixer Screen -->
+    <div id="schema-screen" class="grid-bg screen">
+      <div class="schema-header">
+        <div class="schema-header-title">SCHEMA FIXER</div>
+        <div class="progress-pill">
+          Question <span id="question-index">1</span> / <span id="question-total">5</span>
+        </div>
+      </div>
+
+      <div class="prof-box">
+        <div class="prof-label">
+          Prof Cipher
+          <span class="prof-chip">Normalization Mentor</span>
+        </div>
+        <div>
+          First Normal Form errors detected. Then chase away partial dependencies
+          to reach Second Normal Form.
+        </div>
+      </div>
+
+      <div id="question-container"></div>
+
+      <div class="controls-row">
+        <div class="controls-left">
+          <div class="status-text" id="status-text">
+            Drag attributes into tables, then Check Schema.
+          </div>
+          <button class="btn btn-secondary small-btn" type="button" id="back-to-mission">
+            ← MAP
+          </button>
+        </div>
+
+        <div class="controls-right">
+          <button class="btn btn-secondary" type="button" id="reset-btn">RESET</button>
+          <button class="btn" type="button" id="check-btn">✓ CHECK SCHEMA</button>
+        </div>
+      </div>
+
+      <div class="schema-footer">
+        <div class="footer-left">
+          XP: <span class="key" id="xp-counter">0</span>
+        </div>
+
+        <div class="footer-center">
+          After the 5 drag-and-drop repairs, answer 5 MCQs to complete the protocol.
+        </div>
+
+        <div class="footer-right">
+          <button class="btn btn-secondary small-btn" type="button" id="next-level-btn">
+            NEXT QUESTION →
+          </button>
+        </div>
+      </div>
+
+      <div id="mcq-container"></div>
+    </div>
+  </div>
+
+  <script src="level4.js"></script>
+</body>
+</html>

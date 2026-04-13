@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>DBMS Quest – Campus Heist</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+
+  <div class="background"></div>
+
+  <main class="container">
+    <!-- Top HUD -->
+    <header class="top-bar">
+      <div class="game-badge">DBMS QUEST</div>
+      <div class="agent-id">AGENT: <span id="playerName">UNKNOWN</span></div>
+    </header>
+
+    <!-- Hero section -->
+    <section class="hero">
+      <div class="hero-text">
+        <h1 class="main-title">CAMPUS HEIST</h1>
+        <h2 class="subtitle">Recover the corrupted database of Nexus University.</h2>
+      </div>
+      <div class="hero-side">
+        <div class="hero-stat-pill">
+          <span class="pill-label">PROTOCOL</span>
+          <span class="pill-value">LEVEL 1 – 10</span>
+        </div>
+        <div class="hero-stat-pill">
+          <span class="pill-label">MODE</span>
+          <span class="pill-value">SOLO AGENT</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Bot alert -->
+    <section class="alert-box">
+      <div class="robot-frame">
+        <img src="./robot.png" class="robot" alt="SYS-BOT 3000">
+      </div>
+      <div class="alert-text">
+        <h3 class="bot-name">SYS-BOT 3000</h3>
+        <p class="bot-line">🚨 Campus servers are unstable. Complete missions to restore the DBMS.</p>
+        <p class="bot-muted">Your progress is saved automatically. You can safely exit and continue later.</p>
+      </div>
+    </section>
+
+    <!-- Stats row -->
+    <section class="stats-row">
+      <article class="card">
+        <h3 id="xp">0</h3>
+        <p>XP</p>
+      </article>
+      <article class="card">
+        <h3 id="levels">0</h3>
+        <p>LEVELS</p>
+      </article>
+      <article class="card">
+        <h3 id="badges">0</h3>
+        <p>BADGES</p>
+      </article>
+    </section>
+
+    <!-- Progress -->
+    <section class="progress-section">
+      <div class="progress-label-row">
+        <span class="progress-label">AGENT RANK</span>
+        <span class="progress-value" id="rankLabel">Rookie</span>
+      </div>
+      <div class="progress-bar">
+        <div id="progressFill"></div>
+      </div>
+    </section>
+
+    <!-- Buttons -->
+    <section class="buttons-row">
+      <button id="startBtn" class="btn primary" type="button" onclick="startQuest()">
+        START NEW RUN
+      </button>
+      <button id="continueBtn" class="btn ghost" type="button" onclick="goToMap()" style="display:none;">
+        CONTINUE
+      </button>
+      <button id="resetBtn" class="btn danger-ghost" type="button" onclick="resetGame()" style="display:none;">
+        RESET PROFILE
+      </button>
+    </section>
+  </main>
+
+  <!-- NAME MODAL -->
+  <div id="nameModal" class="modal hidden" aria-hidden="true">
+    <div class="modal-panel">
+      <h2>Agent Identification</h2>
+      <p class="modal-sub">Enter your codename to register with SYS‑BOT 3000.</p>
+      <input
+        type="text"
+        id="nameInput"
+        class="name-input"
+        placeholder="Type your codename"
+        autocomplete="off"
+      >
+      <div class="modal-actions">
+        <button class="btn ghost" type="button" onclick="cancelName()">CANCEL</button>
+        <button class="btn primary" type="button" onclick="saveName()">CONFIRM</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="./script.js"></script>
+</body>
+</html>

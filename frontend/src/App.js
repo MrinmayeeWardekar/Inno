@@ -1,8 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import Profile from './pages/Profile';
 
 // Pages
 import Landing from './pages/Landing';
@@ -21,9 +20,13 @@ import LiveSessions from './pages/learner/LiveSessions';
 import LiveRoom from './pages/learner/LiveRoom';
 import SageChat from './pages/learner/SageChat';
 import QuizPage from './pages/learner/QuizPage';
+import SubscriptionPage from './pages/learner/SubscriptionPage';
+import PaymentPage from './pages/learner/PaymentPage';
+import GamePage from './pages/learner/GamePage';
 
 // Tutor
 import TutorDashboard from './pages/tutor/TutorDashboard';
+import TutorProfile from './pages/tutor/TutorProfile';
 import CreateCourse from './pages/tutor/CreateCourse';
 import TutorLive from './pages/tutor/TutorLive';
 import TutorQuiz from './pages/tutor/TutorQuiz';
@@ -46,9 +49,6 @@ const Cursor = () => {
         cursorRef.current.style.top = `${e.clientY - 6}px`;
       }
     };
-    const onHover = () => followerRef.current?.classList.add('hovering');
-    const onLeave = () => followerRef.current?.classList.remove('hovering');
-
     let raf;
     const animate = () => {
       followerPos.current.x += (posRef.current.x - followerPos.current.x) * 0.12;
@@ -60,17 +60,8 @@ const Cursor = () => {
       raf = requestAnimationFrame(animate);
     };
     raf = requestAnimationFrame(animate);
-
     window.addEventListener('mousemove', onMove);
-    document.querySelectorAll('a, button, [role="button"]').forEach(el => {
-      el.addEventListener('mouseenter', onHover);
-      el.addEventListener('mouseleave', onLeave);
-    });
-
-    return () => {
-      window.removeEventListener('mousemove', onMove);
-      cancelAnimationFrame(raf);
-    };
+    return () => { window.removeEventListener('mousemove', onMove); cancelAnimationFrame(raf); };
   }, []);
 
   return (
@@ -109,7 +100,6 @@ function AppRoutes() {
       <Route path="/auth/callback" element={<AuthCallback />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password/:id/:token" element={<ResetPassword />} />
-      <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
 
       {/* Learner */}
       <Route path="/dashboard" element={<PrivateRoute roles={['learner']}><LearnerDashboard /></PrivateRoute>} />
@@ -119,10 +109,14 @@ function AppRoutes() {
       <Route path="/live/room/:roomId" element={<PrivateRoute><LiveRoom /></PrivateRoute>} />
       <Route path="/sage" element={<PrivateRoute><SageChat /></PrivateRoute>} />
       <Route path="/quiz/:courseId" element={<PrivateRoute><QuizPage /></PrivateRoute>} />
+      <Route path="/subscription" element={<PrivateRoute><SubscriptionPage /></PrivateRoute>} />
+      <Route path="/payment" element={<PrivateRoute><PaymentPage /></PrivateRoute>} />
+      <Route path="/game" element={<PrivateRoute><GamePage /></PrivateRoute>} />
       <Route path="/settings" element={<PrivateRoute><AccountSettings /></PrivateRoute>} />
 
       {/* Tutor */}
       <Route path="/tutor" element={<PrivateRoute roles={['tutor']}><TutorDashboard /></PrivateRoute>} />
+      <Route path="/tutor/profile/:tutorId" element={<TutorProfile />} />
       <Route path="/tutor/create" element={<PrivateRoute roles={['tutor']}><CreateCourse /></PrivateRoute>} />
       <Route path="/tutor/live" element={<PrivateRoute roles={['tutor']}><TutorLive /></PrivateRoute>} />
       <Route path="/tutor/quiz/:courseId" element={<PrivateRoute roles={['tutor']}><TutorQuiz /></PrivateRoute>} />

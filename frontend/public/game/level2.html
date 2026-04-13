@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Level 2 — Candidate Key Challenge</title>
+  <link rel="stylesheet" href="level2.css" />
+</head>
+<body>
+
+  <div id="intro-screen" class="screen active">
+    <div class="intro-inner">
+      <div class="mission-badge">🎯 MISSION BRIEFING</div>
+      <h1 class="intro-title">CANDIDATE KEY<br>CHALLENGE</h1>
+      <p class="intro-sub">Level 2 — Database Defense Academy</p>
+
+      <div class="intro-story">
+        <p>
+          🚨 <strong>ALERT:</strong> The academy database has multiple possible unique identifiers.
+          Your task is to detect the correct Candidate Key in each table and secure the data structure.
+        </p>
+      </div>
+
+      <div class="intro-rules">
+        <div class="rule-item"><span class="rule-icon">🧩</span><span>Find the correct Candidate Key</span></div>
+        <div class="rule-item"><span class="rule-icon">⚡</span><span>5 questions — each worth 20 XP</span></div>
+        <div class="rule-item"><span class="rule-icon">✅</span><span>Select one answer and click Confirm</span></div>
+      </div>
+
+      <button class="btn-start" onclick="startLevel()">▶ START MISSION</button>
+    </div>
+  </div>
+
+  <div id="quiz-screen" class="screen">
+    <div class="hud">
+      <div class="hud-left">
+        <button class="hud-btn" onclick="goHome()">🏠 Home</button>
+        <button class="hud-btn" onclick="goMap()">🗺️ Map</button>
+        <div class="hud-level">LEVEL 2</div>
+      </div>
+
+      <div class="hud-center">
+        <span id="hud-title">Candidate Key Challenge</span>
+      </div>
+
+      <div class="hud-right">
+        <div class="xp-display">⚡ <span id="xp-count">0</span> XP</div>
+        <div class="progress-text"><span id="q-current">1</span> / <span id="q-total">5</span></div>
+      </div>
+    </div>
+
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="progress-fill"></div>
+    </div>
+
+    <div class="question-area">
+      <div class="question-card">
+        <div class="q-header">
+          <div class="q-badge">QUESTION <span id="q-num">1</span></div>
+          <div class="q-title" id="q-table-name">STUDENT_LOGIN</div>
+        </div>
+
+        <p class="q-instruction">🔍 Which option is the best <strong>Candidate Key</strong> for this table?</p>
+
+        <div class="table-wrap">
+          <table class="db-table">
+            <thead>
+              <tr id="table-head"></tr>
+            </thead>
+            <tbody id="table-body"></tbody>
+          </table>
+        </div>
+
+        <div class="choices" id="choices"></div>
+        <div class="feedback-box" id="feedback-box"></div>
+
+        <div class="nav-buttons">
+          <div class="nav-left">
+            <button class="btn-hint" onclick="showHint()">💡 HINT</button>
+          </div>
+
+          <div class="nav-right">
+            <button class="btn-confirm" id="btn-confirm" onclick="confirmAnswer()" disabled>✔ CONFIRM</button>
+            <button class="btn-next" id="btn-next" onclick="nextQuestion()">NEXT ▶</button>
+          </div>
+        </div>
+
+        <div class="hint-box hidden" id="hint-box"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="complete-screen" class="screen">
+    <div class="complete-inner">
+      <div class="trophy">🏆</div>
+      <div class="complete-title">MISSION COMPLETE!</div>
+      <div class="mission-name">Candidate Key Challenge</div>
+      <div class="xp-gained" id="final-xp">+100 XP</div>
+      <div class="xp-total" id="final-xp-label">100 XP Gained</div>
+
+      <div class="zone-info">
+        <div class="zone-emoji">🛡️</div>
+        <div>Candidate keys verified! The academy database now has stronger identity logic.</div>
+      </div>
+
+      <div class="score-summary" id="score-summary"></div>
+
+      <div class="bottom-buttons">
+        <button class="campus-map" onclick="goHome()">🏠 HOME</button>
+        <button class="campus-map" onclick="goMap()">🗺️ CAMPUS MAP</button>
+        <button class="next-mission" onclick="goNextLevel()">NEXT MISSION ➡️</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="level2.js"></script>
+</body>
+</html>

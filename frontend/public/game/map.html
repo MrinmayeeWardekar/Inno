@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Campus Map - DBMS Quest</title>
+  <link rel="stylesheet" href="map.css">
+</head>
+<body>
+
+<div class="map-bg"></div>
+
+<div class="map-container">
+  <h1 class="map-title">📍 CAMPUS MAP</h1>
+  <p class="map-sub">Select your next mission</p>
+
+  <div class="levels-row">
+
+    <!-- LEVEL 1 -->
+    <div class="level-card current" id="level1" data-level="1" onclick="playLevel(1)">
+      <div class="level-top">
+        <span>L1</span>
+        <span class="status-icon">🔑</span>
+      </div>
+      <h3>Orientation Day</h3>
+      <p>Tables, Rows & Columns</p>
+      <button class="play-btn">PLAY</button>
+    </div>
+
+    <!-- LEVEL 2 -->
+    <div class="level-card locked" id="level2" data-level="2" onclick="playLevel(2)">
+      <div class="level-top">
+        <span>L2</span>
+        <span class="status-icon">🔒</span>
+      </div>
+      <h3>Key Lab Break-In</h3>
+      <p>Primary & Candidate Keys</p>
+      <button class="lock-btn">LOCKED</button>
+    </div>
+
+    <!-- LEVEL 3 -->
+    <div class="level-card locked" id="level3" data-level="3" onclick="playLevel(3)">
+      <div class="level-top">
+        <span>L3</span>
+        <span class="status-icon">🔒</span>
+      </div>
+      <h3>Foreign Affairs</h3>
+      <p>Foreign Keys & Relationships</p>
+      <button class="lock-btn">LOCKED</button>
+    </div>
+
+    <!-- LEVEL 4 -->
+    <div class="level-card locked" id="level4" data-level="4" onclick="playLevel(4)">
+      <div class="level-top">
+        <span>L4</span>
+        <span class="status-icon">🔒</span>
+      </div>
+      <h3>Normalization Protocol</h3>
+      <p>1NF & 2NF</p>
+      <button class="lock-btn">LOCKED</button>
+    </div>
+
+  </div>
+
+  <button class="back-btn" onclick="goHome()">⬅ Back</button>
+</div>
+
+<script src="map.js"></script>
+
+</body>
+</html>
