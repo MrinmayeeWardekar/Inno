@@ -98,7 +98,7 @@ export default function LearnerDashboard() {
     <div style={{ display: 'flex', minHeight: '100vh', background: '#07060f' }}>
 
       {/* Sidebar */}
-      <aside style={{ width: sidebarCollapsed ? 72 : 260, background: 'rgba(7,5,15,0.95)', borderRight: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', padding: '24px 0', transition: 'width 0.3s ease', position: 'fixed', top: 0, left: 0, bottom: 0, flexShrink: 0, backdropFilter: 'blur(20px)', zIndex: 50 }}>
+      <aside style={{ width: sidebarCollapsed ? 72 : 260, background: 'rgba(7,5,15,0.95)', borderRight: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', padding: '24px 0', transition: 'width 0.3s ease', position: 'fixed', top: 0, left: 0, bottom: 0, flexShrink: 0, backdropFilter: 'blur(20px)', zIndex: 50, overflowY: 'auto'}}>
         {/* Logo */}
         <div style={{ padding: '0 20px', marginBottom: 32, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           {!sidebarCollapsed && (
