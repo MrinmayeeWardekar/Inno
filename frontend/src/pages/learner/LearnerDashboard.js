@@ -79,6 +79,7 @@ export default function LearnerDashboard() {
     { id: 'leaderboard', icon: '🏆', label: 'Leaderboard' },
     { id: 'progress', icon: '📈', label: 'My Progress' },
     { id: 'profile', icon: '👤', label: 'My Profile' },
+    { id: 'game', icon: '🎮', label: 'DBMS Quest' },
   ];
 
   const StatCard = ({ icon, label, value, color, bg, sub }) => (
@@ -114,7 +115,11 @@ export default function LearnerDashboard() {
         {/* Nav */}
         <nav style={{ flex: 1, padding: '0 12px' }}>
           {nav.map(item => (
-            <div key={item.id} onClick={() => item.id === 'profile' ? navigate('/profile') : setTab(item.id)}
+            <div key={item.id} onClick={() => {
+             if (item.id === 'profile') navigate('/settings');
+             else if (item.id === 'game') navigate('/game');
+             else setTab(item.id);
+            }}
               style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 12, marginBottom: 4, cursor: 'pointer', transition: 'all 0.15s', background: tab === item.id ? 'rgba(123,94,167,0.2)' : 'transparent', color: tab === item.id ? '#9d7fd4' : 'rgba(255,255,255,0.4)', border: `1px solid ${tab === item.id ? 'rgba(123,94,167,0.3)' : 'transparent'}`, overflow: 'hidden' }}
               onMouseEnter={e => { if (tab !== item.id) { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.color = 'white'; }}}
               onMouseLeave={e => { if (tab !== item.id) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(255,255,255,0.4)'; }}}>
