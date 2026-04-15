@@ -81,7 +81,7 @@ export default function TutorDashboard() {
               onClick={() => {
                 if (item.id === 'create') navigate('/tutor/create');
                 else if (item.id === 'live') navigate('/tutor/live');
-                else if (item.id === 'profile') navigate('/profile');
+                else if (item.id === 'profile') navigate(`/tutor/profile/${user._id}`);
                 else setTab(item.id);
               }}
               style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 12, marginBottom: 4, cursor: 'pointer', transition: 'all 0.15s', background: tab === item.id && !['create','live','profile'].includes(item.id) ? 'rgba(123,94,167,0.2)' : 'transparent', color: tab === item.id && !['create','live','profile'].includes(item.id) ? '#9d7fd4' : 'rgba(255,255,255,0.4)', border: `1px solid ${tab === item.id && !['create','live','profile'].includes(item.id) ? 'rgba(123,94,167,0.3)' : 'transparent'}` }}
