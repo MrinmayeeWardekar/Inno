@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DBMS Quest — Level 3: Foreign Affairs</title>
+  <link rel="stylesheet" href="level3.css" />
+</head>
+<body>
+
+  <div class="mission-container" id="mission-screen">
+    <div class="mission-header">
+      <div class="mission-step">MISSION 3/10</div>
+      <div class="mission-icon">🔑</div>
+      <div class="mission-title">Foreign Affairs</div>
+      <div class="mission-subtitle">Foreign Keys &amp; Relationships</div>
+      <div class="mission-location">📍 Relations Wing</div>
+    </div>
+
+    <div class="mission-intro-card">
+      <div class="intro-bot-avatar">🤖</div>
+      <div class="intro-content">
+        <div class="intro-bot-name">SYS-BOT 3000</div>
+        <div class="intro-text">
+          Tables are disconnected! Identify the foreign keys to re-link departments to students.
+        </div>
+      </div>
+    </div>
+
+    <div class="mission-stats-row">
+      <div class="mission-stat-card">
+        <div class="stat-label">Mode</div>
+        <div class="stat-value">Key Hunter</div>
+      </div>
+      <div class="mission-stat-card">
+        <div class="stat-label">XP Reward</div>
+        <div class="stat-value stat-xp">+100</div>
+      </div>
+      <div class="mission-stat-card">
+        <div class="stat-label">Difficulty</div>
+        <div class="stat-value stat-stars">★★★</div>
+      </div>
+    </div>
+
+    <div class="mission-mode-strip">
+      <span class="mode-key-icon">🔑</span>
+      <span class="mode-label">Key Hunter –</span>
+      <span class="mode-text">Choose the correct answer from options.</span>
+    </div>
+
+    <div class="mission-nav-row">
+      <button class="map-btn" onclick="goToMap()">↩ MAP</button>
+      <button class="begin-btn" onclick="beginMission()">⚡ BEGIN MISSION</button>
+    </div>
+  </div>
+
+  <div class="hunter-container hidden" id="hunter-screen">
+    <div class="hunter-top-row">
+      <div class="hunter-mode">🔑 KEY HUNTER</div>
+      <div class="hunter-progress" id="hunter-progress">1/5</div>
+    </div>
+
+    <div class="hunter-bot-card">
+      <div class="hunter-bot-avatar">🤖</div>
+      <div>
+        <div class="hunter-bot-name">SYS-BOT 3000</div>
+        <div class="hunter-bot-text">
+          Analyze the table structure carefully. Look for the column that links the STUDENT table to DEPARTMENT.
+        </div>
+      </div>
+    </div>
+
+    <div class="tables-grid">
+      <div class="table-block">
+        <div class="table-header-label">DEPARTMENT</div>
+        <div class="table-row head">
+          <div class="cell pk">DEPT_ID <span class="tag tag-pk">PK</span></div>
+          <div class="cell">DEPT_NAME</div>
+          <div class="cell">HOD</div>
+        </div>
+        <div class="table-row">
+          <div class="cell">D01</div>
+          <div class="cell">Computer Science</div>
+          <div class="cell">Dr. Rao</div>
+        </div>
+        <div class="table-row">
+          <div class="cell">D02</div>
+          <div class="cell">Information Tech</div>
+          <div class="cell">Ms. Lee</div>
+        </div>
+      </div>
+
+      <div class="table-block">
+        <div class="table-header-label">STUDENT</div>
+        <div class="table-row head">
+          <div class="cell pk">STUDENT_ID <span class="tag tag-pk">PK</span></div>
+          <div class="cell">NAME</div>
+          <div class="cell fk">DEPT_ID <span class="tag tag-fk">FK</span></div>
+          <div class="cell">YEAR</div>
+        </div>
+        <div class="table-row">
+          <div class="cell">S101</div>
+          <div class="cell">Arun</div>
+          <div class="cell">D01</div>
+          <div class="cell">1</div>
+        </div>
+        <div class="table-row">
+          <div class="cell">S102</div>
+          <div class="cell">Bhavya</div>
+          <div class="cell">D02</div>
+          <div class="cell">2</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="question-card">
+      <div class="question-label">❓ QUESTION</div>
+      <div class="question-text" id="question-text">
+        In the STUDENT table, which column is a FOREIGN KEY and what does it reference?
+      </div>
+    </div>
+
+    <div class="options-list" id="options-list"></div>
+
+    <div class="hunter-feedback" id="hunter-feedback"></div>
+
+    <div class="hunter-hint-row">
+      <button class="hunter-hint-toggle" onclick="toggleHunterHint()">💡 Need a hint? Click here</button>
+      <div class="hunter-hint hidden" id="hunter-hint">
+        A foreign key points to a primary key in another table. Look for matching column names between STUDENT and DEPARTMENT.
+      </div>
+    </div>
+
+    <div class="hunter-nav-row">
+      <button class="home-btn" onclick="goToMap()">🏠 MAP</button>
+      <button class="prev-btn" onclick="prevQuestion()">◀ PREVIOUS</button>
+      <button class="next-btn" onclick="nextQuestion()">▶ NEXT</button>
+    </div>
+  </div>
+
+  <script src="level3.js"></script>
+</body>
+</html>

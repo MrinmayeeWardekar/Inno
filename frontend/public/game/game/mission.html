@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Level 1 – Data Basics Protocol</title>
+  <link rel="stylesheet" href="level1.css" />
+</head>
+
+<body>
+  <div class="quiz-container">
+
+    <!-- HEADER -->
+    <div class="quiz-header">
+      <div class="mode-title">🔰 DATA BASICS PROTOCOL</div>
+
+      <div style="display:flex; gap:10px; align-items:center;">
+        <div class="progress" id="progress">1/10</div>
+        <div class="timer" id="timer">⏱ 15</div>
+      </div>
+    </div>
+
+    <!-- BOT -->
+    <div class="bot-box">
+      <div class="bot-avatar">🤖</div>
+      <div>
+        <div class="bot-name">SYS-BOT 3000</div>
+        <div id="bot-text">
+          Welcome, Data Recruit. Learn how tables function.
+        </div>
+      </div>
+    </div>
+
+    <!-- TABLE -->
+    <div id="table-section" class="table-box">
+      <div class="table-title" id="table-title"></div>
+      <table>
+        <thead>
+          <tr id="table-headers"></tr>
+        </thead>
+        <tbody id="table-body"></tbody>
+      </table>
+    </div>
+
+    <!-- QUESTION -->
+    <div class="question-box">
+      <div class="question-title">❓ QUESTION</div>
+      <div id="question-text"></div>
+    </div>
+
+    <!-- OPTIONS -->
+    <div class="options" id="options-container"></div>
+
+    <!-- HINT -->
+    <button class="hint-btn" onclick="toggleHint()">💡 Hint</button>
+    <div id="hint-text" class="hidden"></div>
+
+    <!-- RESULT -->
+    <div id="result-box" class="result-box hidden"></div>
+
+  </div>
+
+  <script src="level1.js"></script>
+</body>
+</html>

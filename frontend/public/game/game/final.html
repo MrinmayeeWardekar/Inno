@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <title>All Missions Complete</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="final.css" />
+</head>
+<body>
+  <div class="final-screen">
+    <div class="final-card">
+      <div class="final-icon">🎓</div>
+      <h1 class="final-title">CONGRATULATIONS, AGENT!</h1>
+      <p class="final-subtitle">You have completed all DBMS Missions.</p>
+
+      <div class="final-summary">
+        <div>XP Earned: <span id="final-xp">0</span></div>
+        <div>Level Reached: <span id="final-level">0</span></div>
+        <div>Badges Unlocked: <span id="final-badges">0</span></div>
+      </div>
+
+      <p class="final-message">
+        The Database Defense Academy officially certifies you as a
+        <span id="final-rank">Rookie Agent</span>.  
+        All zones secured, all anomalies normalized. Mission complete.
+      </p>
+
+      <div class="final-buttons">
+        <button onclick="goToMap()">🗺️ Back to Campus Map</button>
+        <button onclick="goToDashboard()">🏠 Return to Dashboard</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="final.js"></script>
+</body>
+</html>

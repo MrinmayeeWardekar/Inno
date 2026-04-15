@@ -1,0 +1,120 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #020617;
+  color: #fff;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+.intro-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.intro-main {
+  max-width: 640px;
+  margin: 80px auto 40px;
+  text-align: center;
+}
+
+.mission-label {
+  color: #9ca3af;
+  letter-spacing: 0.1em;
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+
+.mission-icon {
+  font-size: 32px;
+  margin-bottom: 12px;
+}
+
+.mission-title {
+  font-size: 32px;
+  margin-bottom: 4px;
+}
+
+.mission-subtitle {
+  font-size: 18px;
+  color: #38bdf8;
+  margin-bottom: 4px;
+}
+
+.mission-location {
+  font-size: 13px;
+  color: #9ca3af;
+  margin-bottom: 24px;
+}
+
+.intro-bot-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 0 auto 24px;
+  padding: 16px 20px;
+  max-width: 520px;
+  background: radial-gradient(circle at top left,#4c1d95,#1f2937);
+  border-radius: 18px;
+}
+
+.bot-icon { font-size: 32px; }
+
+.bot-text h3 {
+  font-size: 14px;
+  color: #a5b4fc;
+  margin-bottom: 6px;
+}
+
+.bot-text p {
+  font-size: 13px;
+  color: #e5e7eb;
+  line-height: 1.5;
+}
+
+.intro-meta-row {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.meta-card {
+  width: 140px;
+  padding: 14px 10px;
+  background: #020617;
+  border-radius: 10px;
+  border: 1px solid #111827;
+  text-align: center;
+  font-size: 12px;
+  color: #e5e7eb;
+}
+
+.meta-icon { font-size: 18px; margin-bottom: 4px; }
+
+.intro-actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
+.map-btn,
+.begin-btn {
+  padding: 10px 26px;
+  border-radius: 999px;
+  font-size: 14px;
+  border: 1px solid #1d4ed8;
+  background: #020617;
+  color: #e5e7eb;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.begin-btn {
+  border-color: #0ea5e9;
+  background: linear-gradient(90deg,#0ea5e9,#22c55e);
+}
