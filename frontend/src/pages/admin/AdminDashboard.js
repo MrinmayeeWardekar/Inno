@@ -87,7 +87,7 @@ export default function AdminDashboard() {
         <nav style={{ flex: 1, padding: '0 12px' }}>
           {nav.map(item => (
             <div key={item.id}
-              onClick={() => item.id === 'profile' ? navigate('/profile') : setTab(item.id)}
+             onClick={() => item.id === 'profile' ? navigate('/settings') : setTab(item.id)}
               style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 12, marginBottom: 4, cursor: 'pointer', transition: 'all 0.15s', background: tab === item.id && item.id !== 'profile' ? 'rgba(123,94,167,0.2)' : 'transparent', color: tab === item.id && item.id !== 'profile' ? '#9d7fd4' : 'rgba(255,255,255,0.4)', border: `1px solid ${tab === item.id && item.id !== 'profile' ? 'rgba(123,94,167,0.3)' : 'transparent'}` }}
               onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.color = 'white'; }}
               onMouseLeave={e => { if (tab !== item.id) { e.currentTarget.style.background = tab === item.id ? 'rgba(123,94,167,0.2)' : 'transparent'; e.currentTarget.style.color = tab === item.id ? '#9d7fd4' : 'rgba(255,255,255,0.4)'; } }}>
