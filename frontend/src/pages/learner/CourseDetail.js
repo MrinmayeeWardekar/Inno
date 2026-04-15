@@ -26,6 +26,10 @@ export default function CourseDetail() {
   const isEnrolled = course?.enrolledStudents?.includes(user?._id) || !!progress;
 
   const enroll = async () => {
+    if (course.price > 0) {
+      navigate(`/payment?courseId=${id}`);
+      return;
+    }
     setEnrolling(true);
     try {
       await API.post(`/courses/${id}/enroll`);
@@ -94,7 +98,7 @@ export default function CourseDetail() {
                     <div style={{ fontSize: 56, marginBottom: 16 }}>🔒</div>
                     <p style={{ color: 'white', fontWeight: 700, fontSize: 16, marginBottom: 20 }}>Enroll to unlock all lessons</p>
                     <button onClick={enroll} disabled={enrolling} style={{ padding: '14px 36px', background: 'linear-gradient(135deg,#7b5ea7,#e8547a)', border: 'none', borderRadius: 14, color: 'white', cursor: 'pointer', fontSize: 15, fontWeight: 800, fontFamily: 'var(--font-body)' }}>
-                      {enrolling ? 'Enrolling...' : course.price === 0 ? 'Enroll Free 🎓' : `Enroll for $${course.price}`}
+                      {enrolling ? 'Enrolling...' : course.price === 0 ? 'Enroll Free 🎓' : `Enroll for ₹${course.price}`}
                     </button>
                   </div>
                 </div>
