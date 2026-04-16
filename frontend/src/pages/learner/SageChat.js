@@ -31,7 +31,7 @@ export default function SageChat() {
     setLoading(true);
     try {
       const history = messages.slice(-10).map(m => ({ role: m.role, content: m.content }));
-      const { data } = await API.post('/chatbot/message', { message: msg, history });
+      const { data } = await API.post('/chat', { messages: [...history, { role: 'user', content: msg }] });
       setMessages(prev => [...prev, { role: 'assistant', content: data.reply || data.message || 'Sorry, I had trouble with that. Try again!' }]);
     } catch {
       setMessages(prev => [...prev, { role: 'assistant', content: "I'm having trouble connecting right now. Please try again in a moment! 🙏" }]);
