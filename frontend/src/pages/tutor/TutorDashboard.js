@@ -182,6 +182,7 @@ export default function TutorDashboard() {
                     </div>
                     <div style={{ display: 'flex', gap: 8 }}>
                       <button onClick={() => navigate(`/tutor/quiz/${c._id}`)} style={{ padding: '8px 16px', background: 'rgba(123,94,167,0.15)', border: '1px solid rgba(123,94,167,0.3)', borderRadius: 10, color: '#9d7fd4', cursor: 'pointer', fontSize: 13, fontWeight: 600, fontFamily: 'inherit' }}>+ Quiz</button>
+                      <button onClick={() => navigate(`/tutor/edit/${c._id}`)} style={{ padding: '8px 16px', background: 'rgba(0,212,255,0.08)', border: '1px solid rgba(0,212,255,0.2)', borderRadius: 10, color: '#00d4ff', cursor: 'pointer', fontSize: 13, fontWeight: 600, fontFamily: 'inherit' }}>✏️ Edit</button>
                       <button onClick={() => deleteCourse(c._id)} style={{ padding: '8px 16px', background: 'rgba(252,129,129,0.08)', border: '1px solid rgba(252,129,129,0.2)', borderRadius: 10, color: '#fc8181', cursor: 'pointer', fontSize: 13, fontWeight: 600, fontFamily: 'inherit' }}>Delete</button>
                     </div>
                   </div>
