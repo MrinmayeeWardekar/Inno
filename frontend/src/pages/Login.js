@@ -26,12 +26,6 @@ export default function Login() {
     setLoading(false);
   };
 
-  const demos = [
-    { label: '🛡️ Admin', email: 'admin@innoventure.com', pass: 'Admin@123' },
-    { label: '👨‍🏫 Tutor', email: 'varsha123@gmail.com', pass: 'Varsha@123' },
-    { label: '🎓 Learner', email: 'mrinnn06@gmail.com', pass: 'Mrin@1234' },
-  ];
-
   return (
     <div style={{ minHeight: '100vh', background: 'var(--void)', display: 'flex', position: 'relative', overflow: 'hidden' }}>
       {/* Animated background */}
@@ -101,20 +95,6 @@ export default function Login() {
           <p style={{ textAlign: 'center', marginTop: 24, fontSize: 14, color: 'var(--text-muted)' }}>
             New here? <Link to="/register" style={{ color: 'var(--violet-bright)', textDecoration: 'none', fontWeight: 700 }}>Create account →</Link>
           </p>
-
-          {/* Demo */}
-          <div style={{ marginTop: 28, padding: '20px', background: 'rgba(123,94,167,0.06)', border: '1px solid rgba(123,94,167,0.15)', borderRadius: 16 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-dim)', letterSpacing: 1, marginBottom: 12, textTransform: 'uppercase' }}>⚡ Quick Demo</div>
-            {demos.map((d, i) => (
-              <div key={i} onClick={() => { setEmail(d.email); setPassword(d.pass); }}
-                style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', background: 'rgba(255,255,255,0.03)', borderRadius: 10, marginBottom: 6, fontSize: 13, cursor: 'pointer', border: '1px solid transparent', transition: 'all 0.2s' }}
-                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(123,94,167,0.1)'; e.currentTarget.style.borderColor = 'rgba(123,94,167,0.3)'; }}
-                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; e.currentTarget.style.borderColor = 'transparent'; }}>
-                <span style={{ fontWeight: 700, color: 'white' }}>{d.label}</span>
-                <span style={{ color: 'var(--text-dim)', fontSize: 11 }}>{d.email}</span>
-              </div>
-            ))}
-          </div>
         </div>
       </div>
 
