@@ -82,8 +82,12 @@ export default function CourseDetail() {
           {/* Video Player */}
           {activeLesson?.content && activeLesson.type === 'video' ? (
             <div style={{ borderRadius: 20, overflow: 'hidden', marginBottom: 32, background: '#000', position: 'relative' }}>
-              <video ref={videoRef} controls style={{ width: '100%', maxHeight: 480, display: 'block' }} src={`https://innoventure-backend.onrender.com${activeLesson.content}`}
-                onEnded={() => { markLesson(activeLesson._id); toast.success('Lesson complete! ⭐'); }} />
+              {activeLesson.content.includes('youtube.com') || activeLesson.content.includes('youtu.be') ? (
+                <iframe width="100%" height="480" src={activeLesson.content} title={activeLesson.title} frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen style={{ display: 'block' }} onLoad={() => { setTimeout(() => { markLesson(activeLesson._id); }, 30000); }} />
+              ) : (
+                <video ref={videoRef} controls style={{ width: '100%', maxHeight: 480, display: 'block' }} src={`https://innoventure-backend.onrender.com${activeLesson.content}`}
+                  onEnded={() => { markLesson(activeLesson._id); toast.success('Lesson complete! ⭐'); }} />
+              )}
               <div style={{ padding: '16px 24px', background: 'rgba(14,11,26,0.9)' }}>
                 <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 600, color: 'white' }}>{activeLesson.title}</div>
                 <div style={{ fontSize: 12, color: 'var(--text-dim)', marginTop: 4 }}>{activeLesson.duration > 0 ? `${activeLesson.duration} min` : ''}</div>

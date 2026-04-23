@@ -30,6 +30,7 @@ import TutorProfile from './pages/tutor/TutorProfile';
 import CreateCourse from './pages/tutor/CreateCourse';
 import TutorLive from './pages/tutor/TutorLive';
 import TutorQuiz from './pages/tutor/TutorQuiz';
+import EditCourse from './pages/tutor/EditCourse';
 
 // Admin
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -120,6 +121,7 @@ function AppRoutes() {
       <Route path="/tutor/create" element={<PrivateRoute roles={['tutor']}><CreateCourse /></PrivateRoute>} />
       <Route path="/tutor/live" element={<PrivateRoute roles={['tutor']}><TutorLive /></PrivateRoute>} />
       <Route path="/tutor/quiz/:courseId" element={<PrivateRoute roles={['tutor']}><TutorQuiz /></PrivateRoute>} />
+      <Route path="/tutor/edit/:id" element={<PrivateRoute roles={['tutor']}><EditCourse /></PrivateRoute>} />
 
       {/* Admin */}
       <Route path="/admin" element={<PrivateRoute roles={['admin']}><AdminDashboard /></PrivateRoute>} />
