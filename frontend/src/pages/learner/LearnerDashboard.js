@@ -56,6 +56,9 @@ export default function LearnerDashboard() {
     API.get('/live').then(r => setLiveSessions(Array.isArray(r.data) ? r.data : [])).catch(() => {});
 
     const socket = io('https://innoventure-backend.onrender.com');
+    socket.on('session-ended', () => {
+      API.get('/live').then(r => setLiveSessions(Array.isArray(r.data) ? r.data : [])).catch(() => {});
+    });
     socket.on('session-started', (data) => {
       toast.success(`🔴 ${data.tutorName} just went live: "${data.title}"`, { duration: 5000 });
       API.get('/live').then(r => setLiveSessions(Array.isArray(r.data) ? r.data : [])).catch(() => {});
@@ -98,7 +101,7 @@ export default function LearnerDashboard() {
     <div style={{ display: 'flex', minHeight: '100vh', background: '#07060f' }}>
 
       {/* Sidebar */}
-      <aside style={{ width: sidebarCollapsed ? 72 : 260, background: 'rgba(7,5,15,0.95)', borderRight: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', padding: '24px 0', transition: 'width 0.3s ease', position: 'fixed', top: 0, left: 0, bottom: 0, flexShrink: 0, backdropFilter: 'blur(20px)', zIndex: 50, overflowY: 'auto'}}>
+      <aside style={{ width: sidebarCollapsed ? 72 : 260, background: 'rgba(7,5,15,0.95)', borderRight: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', padding: '24px 0', transition: 'width 0.3s ease', position: 'fixed', top: 0, left: 0, bottom: 0, flexShrink: 0, backdropFilter: 'blur(20px)', zIndex: 50, overflowY: 'auto', overflowY: 'auto'}}>
         {/* Logo */}
         <div style={{ padding: '0 20px', marginBottom: 32, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           {!sidebarCollapsed && (
@@ -312,7 +315,7 @@ export default function LearnerDashboard() {
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 20 }}>
                 {liveSessions.map((s, i) => (
                   <div key={i} style={{ background: 'rgba(14,11,26,0.8)', border: '1px solid rgba(232,84,122,0.3)', borderRadius: 20, padding: '24px', cursor: 'pointer', transition: 'all 0.2s' }}
-                    onClick={() => navigate(`/live/${s.roomId}`)}
+                    onClick={() => navigate(`/live/room/${s.roomId}`)}
                     onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 16px 40px rgba(232,84,122,0.2)'; }}
                     onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
@@ -326,7 +329,7 @@ export default function LearnerDashboard() {
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)' }}>👥 {s.participants?.length || 0} watching</span>
-                      <button style={{ padding: '8px 20px', background: 'linear-gradient(135deg,#e8547a,#7b5ea7)', border: 'none', borderRadius: 10, color: 'white', cursor: 'pointer', fontSize: 13, fontWeight: 700, fontFamily: 'inherit' }}>Join Now →</button>
+                      <button onClick={(e) => { e.stopPropagation(); navigate(`/live/room/${s.roomId}`); }} style={{ padding: '8px 20px', background: 'linear-gradient(135deg,#e8547a,#7b5ea7)', border: 'none', borderRadius: 10, color: 'white', cursor: 'pointer', fontSize: 13, fontWeight: 700, fontFamily: 'inherit' }}>Join Now →</button>
                     </div>
                   </div>
                 ))}
