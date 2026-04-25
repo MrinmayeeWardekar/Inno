@@ -329,7 +329,20 @@ const sendWeeklyProgressEmail = async (email, name, xpEarned, coursesProgress, r
     ${footer()}`);
   await send(email, `📊 Your weekly InnoVenture progress — +${xpEarned} XP earned!`, html);
 };
-
+const sendLiveSessionEndedEmail = async (to, studentName, tutorName, sessionTitle) => {
+  await transporter.sendMail({
+    from: `"InnoVenture" <${process.env.GMAIL_USER}>`,
+    to,
+    subject: `Live session ended — ${sessionTitle}`,
+    html: `<div style="font-family:sans-serif;max-width:480px;margin:0 auto">
+      <h2>Session Ended 🎬</h2>
+      <p>Hi ${studentName},</p>
+      <p><strong>${tutorName}</strong>'s live session "<strong>${sessionTitle}</strong>" has ended.</p>
+      <p>Check out their courses on InnoVenture for more learning!</p>
+      <a href="https://innoventurehub.in/dashboard" style="background:#7b5ea7;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;display:inline-block;margin-top:16px">Go to Dashboard</a>
+    </div>`
+  });
+};
 module.exports = {
   sendWelcomeEmail,
   sendTutorApprovedEmail,
@@ -339,6 +352,7 @@ module.exports = {
   sendEnrollmentEmail,
   sendNewEnrollmentToTutorEmail,
   sendLiveSessionEmail,
+  sendLiveSessionEndedEmail,
   sendAccountWarnedEmail,
   sendAccountSuspendedEmail,
   sendAdminNewTutorApplicationEmail,
@@ -346,4 +360,5 @@ module.exports = {
   sendPasswordResetEmail,
   sendCertificateEmail,
   sendWeeklyProgressEmail
+  
 };
