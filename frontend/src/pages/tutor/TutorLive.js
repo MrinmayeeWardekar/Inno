@@ -27,6 +27,23 @@ export default function TutorLive() {
   const [cameraReady, setCameraReady] = useState(false);
   const videoRef = useRef(null);
   const streamRef = useRef(null);
+
+  // This effect runs whenever cameraReady becomes true
+  // and keeps trying to attach stream to video element
+  useEffect(() => {
+    if (cameraReady && streamRef.current) {
+      const interval = setInterval(() => {
+        if (videoRef.current && !videoRef.current.srcObject) {
+          videoRef.current.srcObject = streamRef.current;
+          videoRef.current.play().catch(() => {});
+        }
+        if (videoRef.current?.srcObject) {
+          clearInterval(interval);
+        }
+      }, 200);
+      return () => clearInterval(interval);
+    }
+  }, [cameraReady]);
   const peerRefs = useRef({});
   const socketRef = useRef(null);
   const timerRef = useRef(null);
@@ -66,7 +83,17 @@ export default function TutorLive() {
       await peerRefs.current[from]?.addIceCandidate(candidate);
     });
 
+    const handleUnload = () => {
+      if (sessionId) {
+        navigator.sendBeacon(
+          'https://innoventure-backend.onrender.com/api/live/' + sessionId + '/end',
+          JSON.stringify({})
+        );
+      }
+    };
+    window.addEventListener('beforeunload', handleUnload);
     return () => {
+      window.removeEventListener('beforeunload', handleUnload);
       socketRef.current?.disconnect();
       clearInterval(timerRef.current);
       streamRef.current?.getTracks().forEach(t => t.stop());
@@ -86,13 +113,17 @@ export default function TutorLive() {
       
       streamRef.current = mediaStream;
       
-      // Set video immediately
-      if (videoRef.current) {
-        videoRef.current.srcObject = mediaStream;
-        videoRef.current.play().catch(() => {});
-      }
-      
       setCameraReady(true);
+      // Multiple attempts to set video stream
+      const trySetVideo = (attempts) => {
+        if (videoRef.current) {
+          videoRef.current.srcObject = mediaStream;
+          videoRef.current.play().catch(() => {});
+        } else if (attempts > 0) {
+          setTimeout(() => trySetVideo(attempts - 1), 300);
+        }
+      };
+      setTimeout(() => trySetVideo(10), 100);
       toast.dismiss('cam');
       toast.success('Camera ready! Starting live session...');
 
