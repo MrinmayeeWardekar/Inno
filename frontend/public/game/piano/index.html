@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>InnoVenture — Piano Master</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --gold:#f5c842;--gold2:#ffab00;--gold3:#ffe066;
+  --cream:#fff8e7;--ink:#080610;
+  --ruby:#e63946;--emerald:#2ec4b6;--violet:#7b2d8b;
+  --sky:#3a86ff;--rose:#ff006e;
+  --c1:#818cf8;--c2:#c084fc;--c3:#34d399;--c4:#f5c842;
+  --font-d:'Playfair Display',serif;
+  --font-b:'Outfit',sans-serif;
+  --font-m:'Space Mono',monospace;
+  --ease-spring:cubic-bezier(0.34,1.56,0.64,1);
+  --ease-out:cubic-bezier(0.22,1,0.36,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--font-b);background:var(--ink);color:var(--cream);overflow-x:hidden;min-height:100vh;}
+button{cursor:pointer;font-family:var(--font-b);border:none;outline:none;}
+input{font-family:var(--font-b);}
+.screen{display:none;min-height:100vh;width:100%;position:relative;overflow:hidden;}
+.screen.active{display:flex;flex-direction:column;align-items:center;justify-content:center;}
+
+/* ═══ PARTICLES ═══ */
+#particles{position:fixed;inset:0;z-index:0;pointer-events:none;}
+
+/* ═══ FLOATING NOTES ═══ */
+.float-note{position:fixed;pointer-events:none;z-index:0;opacity:0;animation:floatNote linear infinite;}
+@keyframes floatNote{0%{opacity:0;transform:translateY(100vh) rotate(0deg);}10%{opacity:0.25;}90%{opacity:0.08;}100%{opacity:0;transform:translateY(-100px) rotate(360deg);}}
+
+/* ═══ SPLASH ═══ */
+#splash{background:radial-gradient(ellipse at 30% 40%,#1a0a2e 0%,#080610 60%);z-index:100;flex-direction:column;gap:0;}
+.splash-bg{position:absolute;inset:0;
+  background:radial-gradient(circle at 15% 80%,rgba(123,45,139,0.5) 0%,transparent 45%),
+  radial-gradient(circle at 85% 15%,rgba(245,200,66,0.3) 0%,transparent 45%),
+  radial-gradient(circle at 55% 55%,rgba(58,134,255,0.2) 0%,transparent 50%);}
+.splash-keys{display:flex;gap:0;margin-bottom:44px;opacity:0;animation:keysRise 1s ease 0.3s forwards;filter:drop-shadow(0 16px 40px rgba(0,0,0,0.6));}
+.sk-w{width:38px;height:130px;background:linear-gradient(180deg,#fffef5,#ede0c8);border-radius:0 0 10px 10px;border:1px solid rgba(0,0,0,0.15);box-shadow:inset -2px 0 4px rgba(0,0,0,0.08),2px 0 0 rgba(255,255,255,0.5),0 8px 20px rgba(0,0,0,0.4);position:relative;transition:transform 0.1s;}
+.sk-b{width:24px;height:82px;background:linear-gradient(180deg,#221d2e,#0d0a12);border-radius:0 0 7px 7px;border:1px solid rgba(0,0,0,0.8);box-shadow:inset -1px 0 3px rgba(255,255,255,0.05),2px 4px 12px rgba(0,0,0,0.9);position:relative;z-index:2;margin:0 -12px;transition:transform 0.1s;}
+.splash-title{font-family:var(--font-d);font-size:clamp(52px,9vw,104px);font-weight:900;letter-spacing:-2px;
+  background:linear-gradient(135deg,var(--gold3) 0%,var(--cream) 45%,var(--gold2) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  opacity:0;animation:fadeUp 0.8s ease 0.9s forwards;line-height:1;}
+.splash-sub{font-family:var(--font-m);font-size:12px;letter-spacing:7px;color:rgba(245,200,66,0.55);
+  text-transform:uppercase;margin-top:14px;opacity:0;animation:fadeUp 0.8s ease 1.1s forwards;}
+.splash-loader{width:220px;height:2px;background:rgba(255,255,255,0.08);border-radius:2px;margin-top:52px;overflow:hidden;opacity:0;animation:fadeUp 0.6s ease 1.3s forwards;}
+.splash-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));width:0;animation:loadBar 2.2s ease 1.5s forwards;}
+.splash-tag{font-size:13px;color:rgba(255,255,255,0.3);margin-top:18px;letter-spacing:2px;opacity:0;animation:fadeUp 0.8s ease 1.4s forwards;}
+
+/* ═══ NAME ENTRY ═══ */
+#namescreen{background:radial-gradient(ellipse at 40% 30%,#150a28 0%,#080610 65%);z-index:90;}
+.name-wrap{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;text-align:center;padding:40px 24px;max-width:500px;width:100%;}
+.name-icon{font-size:60px;margin-bottom:16px;animation:floatBounce 3s ease infinite;}
+.name-title{font-family:var(--font-d);font-size:clamp(28px,5vw,44px);font-weight:900;
+  background:linear-gradient(135deg,#fff 30%,var(--gold) 80%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:10px;}
+.name-sub{font-size:15px;color:rgba(255,255,255,0.45);line-height:1.7;margin-bottom:32px;}
+.name-input-wrap{position:relative;width:100%;margin-bottom:28px;}
+.name-input{width:100%;padding:18px 22px;font-size:20px;font-family:var(--font-b);font-weight:600;
+  background:rgba(255,255,255,0.05);border:2px solid rgba(255,255,255,0.12);border-radius:16px;
+  color:#fff;text-align:center;letter-spacing:1px;outline:none;transition:border-color 0.3s,box-shadow 0.3s;}
+.name-input:focus{border-color:var(--gold);box-shadow:0 0 0 4px rgba(245,200,66,0.12);}
+.name-input::placeholder{color:rgba(255,255,255,0.25);}
+.name-cta{background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--ink);
+  border-radius:60px;padding:18px 60px;font-size:18px;font-weight:800;letter-spacing:0.5px;
+  transition:all 0.3s var(--ease-spring);box-shadow:0 0 40px rgba(245,200,66,0.35);}
+.name-cta:hover{transform:scale(1.06);box-shadow:0 0 60px rgba(245,200,66,0.55);}
+
+/* ═══ HOME ═══ */
+#home{background:radial-gradient(ellipse at 18% 50%,#1a0a2e 0%,#08060e 70%);}
+.home-bg{position:absolute;inset:0;
+  background:radial-gradient(circle at 8% 20%,rgba(123,45,139,0.35) 0%,transparent 40%),
+  radial-gradient(circle at 92% 80%,rgba(245,200,66,0.18) 0%,transparent 40%),
+  radial-gradient(circle at 50% 50%,rgba(58,134,255,0.1) 0%,transparent 60%);}
+.home-grid{position:absolute;inset:0;
+  background-image:linear-gradient(rgba(245,200,66,0.035) 1px,transparent 1px),linear-gradient(90deg,rgba(245,200,66,0.035) 1px,transparent 1px);
+  background-size:70px 70px;}
+.home-content{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:0;padding:40px 20px 20px;width:100%;max-width:860px;}
+.home-greeting{font-family:var(--font-m);font-size:11px;letter-spacing:5px;color:var(--gold);text-transform:uppercase;margin-bottom:14px;opacity:0.75;}
+.home-title{font-family:var(--font-d);font-size:clamp(38px,6vw,68px);font-weight:900;text-align:center;line-height:1.05;
+  background:linear-gradient(135deg,#fff 30%,var(--gold) 75%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:14px;}
+.home-desc{font-size:16px;color:rgba(255,255,255,0.45);text-align:center;max-width:460px;line-height:1.7;margin-bottom:36px;}
+.level-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;width:100%;max-width:720px;margin-bottom:36px;}
+@media(max-width:580px){.level-grid{grid-template-columns:repeat(2,1fr);}}
+.lcard{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:22px;padding:24px 14px 18px;text-align:center;cursor:pointer;transition:all 0.4s var(--ease-spring);position:relative;overflow:hidden;}
+.lcard::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity 0.35s;border-radius:22px;}
+.lcard:hover{transform:translateY(-9px) scale(1.02);border-color:rgba(255,255,255,0.18);}
+.lcard:hover::before{opacity:1;}
+.lcard.locked{opacity:0.25;cursor:not-allowed;pointer-events:none;}
+.lcard.completed{border-color:rgba(245,200,66,0.3);}
+.lcard-emoji{font-size:34px;margin-bottom:12px;display:block;}
+.lcard-num{font-family:var(--font-d);font-size:38px;font-weight:900;line-height:1;}
+.lcard-name{font-size:11px;letter-spacing:2px;opacity:0.55;text-transform:uppercase;margin-top:8px;}
+.lcard-stars{font-size:14px;margin-top:10px;color:rgba(255,255,255,0.25);}
+.lcard.completed .lcard-stars{color:var(--gold);}
+.lcard-bar{height:3px;border-radius:3px;margin-top:14px;background:rgba(255,255,255,0.08);}
+.lcard-bar-fill{height:100%;border-radius:3px;transition:width 0.7s var(--ease-out);}
+.lcard-1{--c:#818cf8;}.lcard-1::before{background:radial-gradient(circle at 50% 0%,rgba(129,140,248,0.22),transparent 65%);}.lcard-1 .lcard-bar-fill{background:var(--c);}
+.lcard-2{--c:#c084fc;}.lcard-2::before{background:radial-gradient(circle at 50% 0%,rgba(192,132,252,0.22),transparent 65%);}.lcard-2 .lcard-bar-fill{background:var(--c);}
+.lcard-3{--c:#34d399;}.lcard-3::before{background:radial-gradient(circle at 50% 0%,rgba(52,211,153,0.22),transparent 65%);}.lcard-3 .lcard-bar-fill{background:var(--c);}
+.lcard-4{--c:var(--gold);}.lcard-4::before{background:radial-gradient(circle at 50% 0%,rgba(245,200,66,0.22),transparent 65%);}.lcard-4 .lcard-bar-fill{background:var(--c);}
+.lcard-5{--c:#ff006e;}.lcard-5::before{background:radial-gradient(circle at 50% 0%,rgba(255,0,110,0.22),transparent 65%);}.lcard-5 .lcard-bar-fill{background:var(--c);}
+.home-cta{background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--ink);border-radius:60px;padding:18px 58px;font-size:17px;font-weight:800;letter-spacing:0.5px;transition:all 0.3s var(--ease-spring);box-shadow:0 0 44px rgba(245,200,66,0.3);}
+.home-cta:hover{transform:scale(1.07);box-shadow:0 0 64px rgba(245,200,66,0.55);}
+.home-stats{display:flex;gap:36px;margin-top:28px;flex-wrap:wrap;justify-content:center;}
+.hstat{text-align:center;}
+.hstat-num{font-family:var(--font-d);font-size:30px;font-weight:700;color:var(--gold);}
+.hstat-lbl{font-size:10px;color:rgba(255,255,255,0.35);letter-spacing:2.5px;text-transform:uppercase;margin-top:3px;}
+.home-player{font-size:13px;color:rgba(255,255,255,0.35);margin-top:16px;letter-spacing:1px;}
+.home-player span{color:var(--gold);font-weight:600;}
+
+/* ═══ INTRO ═══ */
+#intro{background:#08060e;}
+.intro-wrap{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;text-align:center;padding:40px 24px;max-width:580px;width:100%;}
+.intro-lvl-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:100px;padding:8px 20px;font-size:12px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.55);margin-bottom:24px;}
+.intro-emoji{font-size:76px;line-height:1;margin-bottom:18px;}
+.intro-title{font-family:var(--font-d);font-size:clamp(28px,5vw,50px);font-weight:900;line-height:1.1;margin-bottom:16px;}
+.intro-desc{font-size:15px;line-height:1.8;color:rgba(255,255,255,0.55);margin-bottom:24px;}
+.intro-goal-box{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:16px 22px;margin-bottom:28px;width:100%;text-align:left;}
+.goal-lbl{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:7px;}
+.goal-txt{font-size:14px;color:var(--cream);line-height:1.6;}
+.intro-skills{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:28px;}
+.skill-chip{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:100px;padding:6px 14px;font-size:12px;color:rgba(255,255,255,0.65);}
+.intro-btns{display:flex;gap:12px;}
+.btn-back{background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.65);border-radius:60px;padding:14px 28px;font-size:14px;transition:all 0.2s;border:1px solid rgba(255,255,255,0.1);}
+.btn-back:hover{background:rgba(255,255,255,0.13);color:#fff;}
+.btn-play{border-radius:60px;padding:14px 44px;font-size:16px;font-weight:700;transition:all 0.3s var(--ease-spring);letter-spacing:0.5px;color:#fff;}
+.btn-play:hover{transform:scale(1.06);}
+
+/* ═══ GAME SCREEN ═══ */
+#game{background:#08060e;justify-content:flex-start;}
+.game-topbar{width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 18px;position:relative;z-index:10;border-bottom:1px solid rgba(255,255,255,0.05);background:rgba(8,6,16,0.9);backdrop-filter:blur(12px);gap:10px;}
+.topbar-left,.topbar-right{display:flex;gap:7px;align-items:center;flex-wrap:wrap;}
+.tb-btn{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.09);border-radius:40px;padding:7px 16px;font-size:12px;color:rgba(255,255,255,0.75);transition:all 0.2s;display:flex;align-items:center;gap:5px;white-space:nowrap;}
+.tb-btn:hover{background:rgba(255,255,255,0.13);color:#fff;border-color:rgba(255,255,255,0.18);}
+.tb-btn.hint-btn{border-color:rgba(245,200,66,0.3);color:var(--gold);}
+.tb-btn.hint-btn:hover{background:rgba(245,200,66,0.1);}
+.topbar-center{text-align:center;flex:1;}
+.topbar-level{font-family:var(--font-m);font-size:9px;letter-spacing:3px;color:rgba(255,255,255,0.35);text-transform:uppercase;}
+.topbar-name{font-size:13px;font-weight:600;color:rgba(255,255,255,0.8);}
+
+/* ─── LIVES: compact pill instead of a row of hearts ─── */
+.lives-display{
+  display:flex;align-items:center;gap:6px;
+  background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);
+  border-radius:40px;padding:5px 12px;
+}
+.lives-heart{font-size:14px;transition:all 0.25s;}
+.lives-count{font-family:var(--font-m);font-size:12px;color:#f87171;font-weight:700;}
+
+.score-display{font-family:var(--font-m);font-size:13px;color:var(--gold);background:rgba(245,200,66,0.09);border:1px solid rgba(245,200,66,0.18);border-radius:40px;padding:6px 14px;white-space:nowrap;}
+.prog-wrap{width:100%;height:3px;background:rgba(255,255,255,0.05);position:relative;z-index:10;}
+.prog-fill{height:100%;transition:width 0.55s var(--ease-out);}
+.prog-glow{position:absolute;right:0;top:-1px;width:22px;height:5px;border-radius:5px;filter:blur(5px);}
+.game-body{flex:1;display:flex;flex-direction:column;align-items:center;width:100%;padding:14px 18px 0;overflow-y:auto;}
+.instruction-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:18px;padding:16px 22px;margin-bottom:14px;text-align:center;width:100%;max-width:580px;animation:slideDown 0.4s var(--ease-spring);}
+.inst-step{font-family:var(--font-m);font-size:9px;letter-spacing:3px;color:rgba(255,255,255,0.28);text-transform:uppercase;margin-bottom:6px;}
+.inst-main{font-size:16px;font-weight:500;color:rgba(255,255,255,0.88);line-height:1.45;}
+.note-track{display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap;margin-bottom:12px;min-height:58px;}
+.note-pip{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;transition:all 0.3s var(--ease-spring);opacity:0.28;border:2px solid transparent;position:relative;}
+.note-pip.active{opacity:1;transform:scale(1.3);box-shadow:0 0 22px currentColor;animation:pipPulse 0.8s ease infinite;}
+.note-pip.done{opacity:0.55;transform:scale(0.83);}
+.note-pip.done::after{content:'✓';position:absolute;bottom:-2px;right:-2px;background:#22c55e;border-radius:50%;width:16px;height:16px;font-size:9px;display:flex;align-items:center;justify-content:center;border:2px solid #080610;}
+.feedback-area{min-height:38px;display:flex;align-items:center;justify-content:center;margin:6px 0;}
+.feedback-text{font-size:19px;font-weight:700;transition:all 0.3s;padding:6px 20px;border-radius:40px;}
+.feedback-text.correct{background:rgba(34,197,94,0.13);color:#4ade80;}
+.feedback-text.wrong{background:rgba(239,68,68,0.13);color:#f87171;}
+.hint-text{font-size:13px;color:rgba(255,255,255,0.45);text-align:center;min-height:22px;margin-bottom:6px;}
+.combo-badge{position:fixed;top:76px;right:18px;z-index:50;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--ink);border-radius:16px;padding:10px 18px;font-family:var(--font-d);font-weight:900;font-size:18px;transform:scale(0);transition:all 0.3s var(--ease-spring);box-shadow:0 8px 30px rgba(245,200,66,0.4);}
+.combo-badge.show{transform:scale(1);}
+@keyframes pipPulse{0%,100%{box-shadow:0 0 18px currentColor;}50%{box-shadow:0 0 36px currentColor,0 0 54px currentColor;}}
+
+/* ─── LIVES LOST OVERLAY ─── */
+.life-lost-flash{position:fixed;inset:0;background:rgba(239,68,68,0.18);z-index:999;pointer-events:none;animation:lifeLostFlash 0.5s ease forwards;}
+@keyframes lifeLostFlash{0%{opacity:1;}100%{opacity:0;}}
+
+/* ═══ PIANO ═══ */
+.piano-container{width:100%;max-width:640px;padding:0 8px 18px;margin:0 auto;}
+.piano-outer{background:linear-gradient(180deg,#1c1826 0%,#100d1a 100%);border-radius:18px 18px 22px 22px;padding:18px 14px 22px;box-shadow:0 24px 70px rgba(0,0,0,0.85),0 0 0 1px rgba(255,255,255,0.055),inset 0 1px 0 rgba(255,255,255,0.1);position:relative;}
+.piano-brand{font-family:var(--font-d);font-size:10px;letter-spacing:5px;color:rgba(255,255,255,0.18);text-align:center;text-transform:uppercase;margin-bottom:14px;font-style:italic;}
+.piano-keys-wrap{position:relative;display:flex;justify-content:center;}
+.keys-row{display:flex;gap:2px;position:relative;}
+.wkey{border-radius:0 0 12px 12px;cursor:pointer;display:flex;align-items:flex-end;justify-content:center;padding-bottom:10px;font-family:var(--font-m);font-size:10px;font-weight:700;color:#bbb;transition:all 0.07s;user-select:none;position:relative;overflow:hidden;box-shadow:0 5px 0 #d0c8b8,0 7px 18px rgba(0,0,0,0.45);background:linear-gradient(180deg,#fffef5 0%,#ede0c8 100%);}
+.wkey::before{content:'';position:absolute;top:0;left:0;right:0;height:45%;background:linear-gradient(180deg,rgba(255,255,255,0.18),transparent);pointer-events:none;border-radius:2px 2px 0 0;}
+.wkey:active,.wkey.pressing{transform:translateY(4px) scaleY(0.98);box-shadow:0 1px 0 #d0c8b8,0 3px 8px rgba(0,0,0,0.3);}
+.wkey.glow{transition:box-shadow 0.15s;}
+.wkey.flash-correct{background:#86efac !important;color:#166534;}
+.wkey.flash-wrong{background:#fca5a5 !important;color:#7f1d1d;}
+.bkey{border-radius:0 0 9px 9px;cursor:pointer;position:absolute;z-index:10;transition:all 0.07s;user-select:none;overflow:hidden;background:linear-gradient(180deg,#2e2840 0%,#110e1a 100%);box-shadow:0 5px 0 rgba(0,0,0,0.9),0 10px 24px rgba(0,0,0,0.7);}
+.bkey::before{content:'';position:absolute;top:0;left:0;right:0;height:32%;background:linear-gradient(180deg,rgba(255,255,255,0.09),transparent);pointer-events:none;}
+.bkey:active,.bkey.pressing{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,0.9),0 5px 12px rgba(0,0,0,0.7);}
+.bkey.flash-correct{background:#4ade80 !important;}
+.bkey.flash-wrong{background:#f87171 !important;}
+.ripple{position:absolute;border-radius:50%;transform:scale(0);animation:rippleAnim 0.65s ease-out;pointer-events:none;z-index:5;}
+@keyframes rippleAnim{to{transform:scale(4);opacity:0;}}
+
+/* ═══ SHEET MUSIC ═══ */
+.sheet-wrap{width:100%;max-width:580px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:18px;padding:16px;margin-bottom:14px;overflow-x:auto;}
+.sheet-row{display:flex;gap:6px;align-items:flex-end;min-width:max-content;}
+.sheet-note{display:flex;flex-direction:column;align-items:center;gap:4px;transition:all 0.3s;}
+.sheet-note-circle{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;opacity:0.3;transition:all 0.3s;border:2px solid transparent;position:relative;}
+.sheet-note-label{font-size:9px;color:rgba(255,255,255,0.35);letter-spacing:1px;font-family:var(--font-m);}
+.sheet-note.current .sheet-note-circle{opacity:1;transform:scale(1.35);box-shadow:0 0 22px currentColor;border-color:rgba(255,255,255,0.4);}
+.sheet-note.played .sheet-note-circle{opacity:0.7;transform:scale(1);background:rgba(34,197,94,0.28) !important;border-color:#22c55e;}
+
+/* ═══ LEVEL COMPLETE ═══ */
+#complete{background:#08060e;}
+.complete-wrap{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;text-align:center;padding:40px 24px;max-width:520px;}
+.complete-trophy-wrap{position:relative;margin-bottom:22px;}
+.complete-trophy{font-size:82px;display:block;animation:trophyDrop 0.8s var(--ease-spring);}
+.trophy-glow{position:absolute;inset:-20px;border-radius:50%;filter:blur(32px);opacity:0.38;animation:pulseGlow 2.2s ease infinite;}
+.complete-title{font-family:var(--font-d);font-size:clamp(26px,5vw,44px);font-weight:900;line-height:1.1;margin-bottom:8px;}
+.complete-sub{font-size:15px;color:rgba(255,255,255,0.5);margin-bottom:22px;}
+.stars-row{display:flex;gap:7px;justify-content:center;margin-bottom:18px;}
+.star-item{font-size:38px;transform:scale(0);animation:starPop 0.45s var(--ease-spring) forwards;}
+.star-item:nth-child(2){animation-delay:0.12s;}.star-item:nth-child(3){animation-delay:0.24s;}
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:100%;margin-bottom:24px;}
+.stat-box{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:16px 8px;}
+.stat-box-num{font-family:var(--font-d);font-size:30px;font-weight:700;}
+.stat-box-lbl{font-size:10px;color:rgba(255,255,255,0.35);letter-spacing:1px;text-transform:uppercase;margin-top:4px;}
+.xp-bar-wrap{width:100%;background:rgba(255,255,255,0.06);border-radius:100px;height:8px;margin-bottom:26px;overflow:hidden;}
+.xp-bar-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:100px;width:0;transition:width 1.3s var(--ease-out) 0.4s;}
+.xp-label{font-size:12px;color:rgba(255,255,255,0.35);margin-bottom:7px;letter-spacing:1px;}
+.complete-btns{display:flex;gap:12px;}
+.btn-home-s{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.65);border-radius:60px;padding:14px 28px;font-size:14px;border:1px solid rgba(255,255,255,0.1);transition:all 0.2s;}
+.btn-home-s:hover{background:rgba(255,255,255,0.12);color:#fff;}
+.btn-next{border-radius:60px;padding:14px 40px;font-size:15px;font-weight:700;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--ink);transition:all 0.3s var(--ease-spring);letter-spacing:0.5px;}
+.btn-next:hover{transform:scale(1.06);box-shadow:0 0 32px rgba(245,200,66,0.45);}
+
+/* ═══ HAPPY BIRTHDAY SCREEN ═══ */
+#birthday{background:radial-gradient(ellipse at 50% 20%,#1a0020 0%,#080610 65%);z-index:95;}
+.bday-bg{position:absolute;inset:0;background:radial-gradient(circle at 20% 40%,rgba(255,0,110,0.3) 0%,transparent 45%),radial-gradient(circle at 80% 60%,rgba(245,200,66,0.25) 0%,transparent 45%),radial-gradient(circle at 50% 80%,rgba(192,132,252,0.2) 0%,transparent 50%);}
+.bday-wrap{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;text-align:center;padding:20px 24px;max-width:680px;width:100%;overflow-y:auto;max-height:100vh;}
+.bday-candles{font-size:44px;margin-bottom:6px;animation:candleFlicker 1.2s ease infinite alternate;}
+.bday-title{font-family:var(--font-d);font-size:clamp(28px,5vw,52px);font-weight:900;line-height:1.05;background:linear-gradient(135deg,#ff006e,var(--gold),#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:6px;}
+.bday-name{font-size:18px;font-weight:600;color:rgba(255,255,255,0.7);margin-bottom:10px;}
+
+/* ─── Birthday lives bar (no hearts spam) ─── */
+.bday-lives-bar{display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:10px;}
+.bday-lives-label{font-family:var(--font-m);font-size:11px;letter-spacing:2px;color:rgba(255,255,255,0.4);text-transform:uppercase;}
+.bday-hearts{display:flex;gap:4px;}
+.bday-heart{font-size:18px;transition:all 0.3s;}
+
+.bday-instruct{font-size:13px;color:rgba(255,255,255,0.5);line-height:1.6;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:10px 16px;margin-bottom:12px;width:100%;}
+.bday-notes-row{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;margin-bottom:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:12px;width:100%;}
+.bday-n{display:flex;flex-direction:column;align-items:center;gap:4px;}
+.bday-circle{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;opacity:0.28;border:2px solid transparent;transition:all 0.3s var(--ease-spring);position:relative;}
+.bday-label{font-size:7px;font-family:var(--font-m);color:rgba(255,255,255,0.3);}
+.bday-n.current .bday-circle{opacity:1;transform:scale(1.4);box-shadow:0 0 22px currentColor;border-color:rgba(255,255,255,0.5);animation:pipPulse 0.8s ease infinite;}
+.bday-n.played .bday-circle{opacity:0.65;background:rgba(34,197,94,0.25) !important;border-color:#22c55e;}
+.bday-n.played .bday-circle::after{content:'♪';font-size:12px;}
+.bday-feedback{min-height:36px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;margin-bottom:4px;}
+.bday-hint-area{font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:8px;min-height:18px;}
+.bday-progress{font-family:var(--font-m);font-size:11px;color:rgba(255,255,255,0.35);letter-spacing:2px;margin-bottom:10px;}
+/* small progress bar for bday */
+.bday-prog-bar{width:100%;height:4px;background:rgba(255,255,255,0.08);border-radius:4px;overflow:hidden;margin-bottom:10px;}
+.bday-prog-fill{height:100%;background:linear-gradient(90deg,#ff006e,var(--gold));border-radius:4px;transition:width 0.4s var(--ease-out);}
+.bday-hint-btn{background:rgba(245,200,66,0.1);border:1px solid rgba(245,200,66,0.3);color:var(--gold);border-radius:40px;padding:7px 18px;font-size:12px;transition:all 0.2s;display:inline-flex;align-items:center;gap:5px;margin-bottom:10px;}
+.bday-hint-btn:hover{background:rgba(245,200,66,0.18);}
+
+/* ─── GAME OVER popup ─── */
+.game-over-overlay{position:fixed;inset:0;background:rgba(8,6,16,0.88);z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;backdrop-filter:blur(8px);animation:fadeUp 0.35s ease;}
+.game-over-overlay.hidden{display:none;}
+.game-over-title{font-family:var(--font-d);font-size:clamp(32px,6vw,56px);font-weight:900;color:#f87171;text-align:center;}
+.game-over-sub{font-size:16px;color:rgba(255,255,255,0.5);text-align:center;}
+.game-over-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;}
+.btn-retry{background:linear-gradient(135deg,#ff006e,#c084fc);color:#fff;border-radius:60px;padding:14px 36px;font-size:15px;font-weight:700;transition:all 0.3s var(--ease-spring);}
+.btn-retry:hover{transform:scale(1.06);box-shadow:0 0 28px rgba(255,0,110,0.5);}
+
+/* ═══ VICTORY ═══ */
+#victory{background:radial-gradient(ellipse at 50% 25%,#1a0f00 0%,#08060e 55%);}
+.victory-wrap{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;text-align:center;padding:40px 24px;max-width:580px;}
+.victory-confetti{font-size:52px;animation:bounce 0.7s ease infinite alternate;margin-bottom:14px;}
+.victory-title{font-family:var(--font-d);font-size:clamp(36px,6vw,64px);font-weight:900;background:linear-gradient(135deg,var(--gold),#fff,var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:12px;line-height:1.1;}
+.victory-sub{font-size:17px;color:rgba(255,255,255,0.58);line-height:1.75;margin-bottom:28px;max-width:420px;}
+.total-score-display{background:rgba(245,200,66,0.08);border:1px solid rgba(245,200,66,0.22);border-radius:22px;padding:24px 48px;margin-bottom:30px;}
+.total-score-num{font-family:var(--font-d);font-size:58px;font-weight:900;color:var(--gold);}
+.total-score-lbl{font-size:11px;letter-spacing:3px;color:rgba(255,255,255,0.35);text-transform:uppercase;margin-top:5px;}
+.badge-row{display:flex;gap:12px;justify-content:center;margin-bottom:30px;flex-wrap:wrap;}
+.achievement-badge{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:18px;padding:14px 20px;text-align:center;min-width:88px;transition:all 0.3s var(--ease-spring);}
+.achievement-badge:hover{transform:translateY(-4px);border-color:rgba(245,200,66,0.3);}
+.badge-icon{font-size:26px;display:block;margin-bottom:5px;}
+.badge-name{font-size:10px;color:rgba(255,255,255,0.45);letter-spacing:1px;}
+.btn-replay-all{background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--ink);border-radius:60px;padding:18px 58px;font-size:18px;font-weight:800;transition:all 0.3s var(--ease-spring);box-shadow:0 0 44px rgba(245,200,66,0.3);}
+.btn-replay-all:hover{transform:scale(1.06);box-shadow:0 0 64px rgba(245,200,66,0.55);}
+
+/* ═══ KEYBOARD LEGEND ═══ */
+.kb-legend{position:fixed;bottom:14px;right:14px;background:rgba(0,0,0,0.55);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:9px 14px;font-size:10px;color:rgba(255,255,255,0.28);font-family:var(--font-m);z-index:50;letter-spacing:1px;backdrop-filter:blur(8px);}
+
+/* ═══ KEYFRAMES ═══ */
+@keyframes keysRise{from{opacity:0;transform:translateY(44px);}to{opacity:1;transform:translateY(0);}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(22px);}to{opacity:1;transform:translateY(0);}}
+@keyframes loadBar{from{width:0}to{width:100%}}
+@keyframes slideDown{from{opacity:0;transform:translateY(-18px);}to{opacity:1;transform:translateY(0);}}
+@keyframes trophyDrop{from{opacity:0;transform:translateY(-44px) scale(0.5);}to{opacity:1;transform:translateY(0) scale(1);}}
+@keyframes starPop{from{transform:scale(0) rotate(-28deg);}to{transform:scale(1) rotate(0);}}
+@keyframes pulseGlow{0%,100%{transform:scale(1);}50%{transform:scale(1.12);}}
+@keyframes bounce{from{transform:translateY(0);}to{transform:translateY(-14px);}}
+@keyframes floatBounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+@keyframes scoreFloat{0%{opacity:1;transform:translateY(0) scale(1);}100%{opacity:0;transform:translateY(-64px) scale(1.6);}}
+@keyframes confettiFall{0%{transform:translateY(-10px) rotate(0);opacity:1;}100%{transform:translateY(90px) rotate(720deg);opacity:0;}}
+@keyframes candleFlicker{from{transform:scale(1) rotate(-2deg);}to{transform:scale(1.05) rotate(2deg);}}
+</style>
+</head>
+<body>
+<canvas id="particles"></canvas>
+
+<!-- ══ SPLASH ══ -->
+<div id="splash" class="screen active">
+  <div class="splash-bg"></div>
+  <div class="splash-keys" id="splash-keys"></div>
+  <div class="splash-title">InnoVenture</div>
+  <div class="splash-sub">Piano Master</div>
+  <div class="splash-tag">Your musical journey awaits</div>
+  <div class="splash-loader"><div class="splash-fill"></div></div>
+</div>
+
+<!-- ══ NAME ENTRY ══ -->
+<div id="namescreen" class="screen">
+  <div class="home-bg"></div>
+  <div class="name-wrap">
+    <div class="name-icon">🎹</div>
+    <h1 class="name-title">What's your name,<br/>Maestro?</h1>
+    <p class="name-sub">Every great pianist needs a name on the marquee. Enter yours and let the stage lights rise.</p>
+    <div class="name-input-wrap">
+      <input type="text" id="player-name-input" class="name-input" placeholder="Your name here…" maxlength="22" autocomplete="off">
+    </div>
+    <button class="name-cta" id="name-confirm-btn">Take the Stage ▶</button>
+  </div>
+</div>
+
+<!-- ══ HOME ══ -->
+<div id="home" class="screen">
+  <div class="home-bg"></div>
+  <div class="home-grid"></div>
+  <div class="home-content">
+    <div class="home-greeting">🎹 Piano Learning Game</div>
+    <h1 class="home-title">Master the<br/>Keys, Master<br/>the Music</h1>
+    <p class="home-desc">Five unique levels. Real sounds. Real progress — from your first note to <em>Happy Birthday</em> and Beethoven's <em>Ode to Joy</em>.</p>
+    <div class="level-grid" id="level-grid"></div>
+    <button class="home-cta" id="home-cta">Begin Your Journey ▶</button>
+    <div class="home-stats">
+      <div class="hstat"><div class="hstat-num" id="stat-score">0</div><div class="hstat-lbl">Score</div></div>
+      <div class="hstat"><div class="hstat-num" id="stat-stars">0</div><div class="hstat-lbl">Stars</div></div>
+      <div class="hstat"><div class="hstat-num" id="stat-levels">0/5</div><div class="hstat-lbl">Levels</div></div>
+    </div>
+    <div class="home-player">Playing as <span id="home-player-name">—</span></div>
+  </div>
+</div>
+
+<!-- ══ INTRO ══ -->
+<div id="intro" class="screen">
+  <div class="home-bg" id="intro-bg"></div>
+  <div class="intro-wrap">
+    <div class="intro-lvl-badge" id="intro-badge">Level 1</div>
+    <div class="intro-emoji" id="intro-emoji"></div>
+    <h2 class="intro-title" id="intro-title"></h2>
+    <p class="intro-desc" id="intro-desc"></p>
+    <div class="intro-goal-box"><div class="goal-lbl">🎯 Your Goal</div><div class="goal-txt" id="intro-goal"></div></div>
+    <div class="intro-skills" id="intro-skills"></div>
+    <div class="intro-btns">
+      <button class="btn-back" onclick="showHome()">← Home</button>
+      <button class="btn-play" id="intro-play-btn">Start Playing!</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ GAME ══ -->
+<div id="game" class="screen">
+  <div class="game-topbar">
+    <div class="topbar-left">
+      <button class="tb-btn" onclick="showHome()">🏠</button>
+      <button class="tb-btn hint-btn" id="hint-btn">💡 Hint</button>
+    </div>
+    <div class="topbar-center">
+      <div class="topbar-level" id="topbar-level"></div>
+      <div class="topbar-name" id="topbar-name"></div>
+    </div>
+    <div class="topbar-right">
+      <div class="lives-display" id="lives-display">
+        <span class="lives-heart">❤️</span>
+        <span class="lives-count" id="lives-count">3</span>
+      </div>
+      <div class="score-display" id="score-display">0</div>
+    </div>
+  </div>
+  <div class="prog-wrap"><div class="prog-fill" id="prog-fill"></div><div class="prog-glow" id="prog-glow"></div></div>
+  <div class="game-body" id="game-body"></div>
+  <div class="piano-container" id="piano-container">
+    <div class="piano-outer">
+      <div class="piano-brand">✦ InnoVenture Grand ✦</div>
+      <div class="piano-keys-wrap" id="piano-keys-wrap"></div>
+    </div>
+  </div>
+  <div class="combo-badge" id="combo-badge"></div>
+</div>
+
+<!-- ══ LEVEL COMPLETE ══ -->
+<div id="complete" class="screen">
+  <div class="home-bg" id="complete-bg"></div>
+  <div class="complete-wrap">
+    <div class="complete-trophy-wrap">
+      <div class="trophy-glow" id="trophy-glow"></div>
+      <span class="complete-trophy" id="complete-trophy">🏆</span>
+    </div>
+    <h2 class="complete-title" id="complete-title"></h2>
+    <p class="complete-sub" id="complete-sub"></p>
+    <div class="stars-row" id="stars-row"></div>
+    <div class="stats-grid">
+      <div class="stat-box"><div class="stat-box-num" style="color:#4ade80" id="sc-correct">0</div><div class="stat-box-lbl">Correct</div></div>
+      <div class="stat-box"><div class="stat-box-num" style="color:#f87171" id="sc-wrong">0</div><div class="stat-box-lbl">Missed</div></div>
+      <div class="stat-box"><div class="stat-box-num" style="color:var(--gold)" id="sc-score">0</div><div class="stat-box-lbl">Score</div></div>
+    </div>
+    <div class="xp-label" id="xp-label">XP Earned</div>
+    <div class="xp-bar-wrap"><div class="xp-bar-fill" id="xp-bar"></div></div>
+    <div class="complete-btns">
+      <button class="btn-home-s" onclick="showHome()">🏠 Home</button>
+      <button class="btn-next" id="btn-next">Next Level ▶</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ HAPPY BIRTHDAY ══ -->
+<div id="birthday" class="screen">
+  <div class="bday-bg"></div>
+  <div class="bday-wrap">
+    <div class="bday-candles">🎂🕯️🎂</div>
+    <h1 class="bday-title">Happy Birthday!</h1>
+    <div class="bday-name" id="bday-player-name">Maestro 🎉</div>
+
+    <!-- ─── compact lives bar ─── -->
+    <div class="bday-lives-bar">
+      <span class="bday-lives-label">Lives</span>
+      <div class="bday-hearts" id="bday-hearts"></div>
+      <span class="bday-lives-label" id="bday-lives-count" style="color:#f87171;font-weight:700;font-family:var(--font-m);font-size:13px;"></span>
+    </div>
+
+    <div class="bday-instruct">
+      🎵 Play <strong>Happy Birthday</strong> on the piano!
+      Follow the glowing key — play all <strong>25 notes</strong> to unlock the Grand Finale.
+    </div>
+
+    <!-- progress bar -->
+    <div class="bday-prog-bar"><div class="bday-prog-fill" id="bday-prog-fill" style="width:0%"></div></div>
+    <div class="bday-progress" id="bday-progress">Note 0 / 25</div>
+
+    <div class="bday-notes-row" id="bday-notes-row"></div>
+    <div class="bday-feedback" id="bday-feedback"></div>
+    <div class="bday-hint-area" id="bday-hint-area"></div>
+    <button class="bday-hint-btn" id="bday-hint-btn">💡 Show Hint</button>
+
+    <div class="piano-container" style="max-width:640px;">
+      <div class="piano-outer">
+        <div class="piano-brand">✦ InnoVenture Grand ✦</div>
+        <div class="piano-keys-wrap" id="bday-piano-wrap"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ GAME OVER OVERLAY ══ -->
+<div class="game-over-overlay hidden" id="game-over-overlay">
+  <div class="victory-confetti" style="font-size:72px;animation:none">💔</div>
+  <div class="game-over-title">Out of Lives!</div>
+  <div class="game-over-sub" id="game-over-sub">The song slipped away. Want to try again?</div>
+  <div class="game-over-btns">
+    <button class="btn-home-s" onclick="showHome();document.getElementById('game-over-overlay').classList.add('hidden')">🏠 Home</button>
+    <button class="btn-retry" id="btn-retry">↺ Try Again</button>
+  </div>
+</div>
+
+<!-- ══ VICTORY ══ -->
+<div id="victory" class="screen">
+  <div class="home-bg"></div>
+  <div class="victory-wrap">
+    <div class="victory-confetti">🎊</div>
+    <h1 class="victory-title">You Did It!</h1>
+    <p class="victory-sub">From your very first note to Beethoven's <em>Ode to Joy</em> — by way of <em>Happy Birthday</em> — you've mastered the InnoVenture Piano Adventure.</p>
+    <div class="total-score-display">
+      <div class="total-score-num" id="total-score-num">0</div>
+      <div class="total-score-lbl">Total Score</div>
+    </div>
+    <div class="badge-row" id="badge-row"></div>
+    <button class="btn-replay-all" onclick="resetGame()">🔄 Play Again</button>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════
+   PARTICLES
+══════════════════════════════════ */
+const canvas=document.getElementById('particles');
+const ctx=canvas.getContext('2d');
+function resizeCv(){canvas.width=innerWidth;canvas.height=innerHeight;}
+resizeCv();addEventListener('resize',resizeCv);
+const PTCOLS=['#f5c842','#818cf8','#c084fc','#34d399','#3a86ff','#ff006e'];
+class Pt{constructor(){this.reset();}reset(){this.x=Math.random()*canvas.width;this.y=Math.random()*canvas.height;this.vx=(Math.random()-0.5)*0.28;this.vy=(Math.random()-0.5)*0.28;this.r=Math.random()*1.6+0.4;this.a=Math.random()*0.35+0.08;this.c=PTCOLS[Math.floor(Math.random()*PTCOLS.length)];}update(){this.x+=this.vx;this.y+=this.vy;if(this.x<0||this.x>canvas.width||this.y<0||this.y>canvas.height)this.reset();}draw(){ctx.beginPath();ctx.arc(this.x,this.y,this.r,0,Math.PI*2);ctx.fillStyle=this.c;ctx.globalAlpha=this.a;ctx.fill();ctx.globalAlpha=1;}}
+const pts=Array.from({length:90},()=>new Pt());
+(function loop(){ctx.clearRect(0,0,canvas.width,canvas.height);pts.forEach(p=>{p.update();p.draw();});requestAnimationFrame(loop);})();
+
+const SYMS=['♩','♪','♫','♬','𝄞','♭','♮'];
+function spawnFloat(){const n=document.createElement('div');n.className='float-note';n.textContent=SYMS[Math.floor(Math.random()*SYMS.length)];n.style.left=Math.random()*100+'vw';n.style.animationDuration=(8+Math.random()*14)+'s';n.style.animationDelay=(Math.random()*5)+'s';n.style.fontSize=(14+Math.random()*22)+'px';n.style.color=['rgba(245,200,66,0.28)','rgba(129,140,248,0.28)','rgba(52,211,153,0.22)','rgba(255,0,110,0.2)'][Math.floor(Math.random()*4)];document.body.appendChild(n);setTimeout(()=>n.remove(),22000);}
+for(let i=0;i<10;i++)spawnFloat();
+setInterval(spawnFloat,2800);
+
+/* ══════════════════════════════════
+   AUDIO
+══════════════════════════════════ */
+let audioCtx=null;
+function getAC(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();return audioCtx;}
+const NF={C:261.63,'C#':277.18,D:293.66,'D#':311.13,E:329.63,F:349.23,'F#':369.99,G:392.00,'G#':415.30,A:440.00,'A#':466.16,B:493.88};
+function playTone(note,dur=1.2){
+  try{const ac=getAC();const f=NF[note]||440;
+    const o=ac.createOscillator();const o2=ac.createOscillator();
+    const g=ac.createGain();const g2=ac.createGain();const m=ac.createGain();
+    o.connect(g);g.connect(m);o2.connect(g2);g2.connect(m);m.connect(ac.destination);
+    o.type='triangle';o2.type='sine';o.frequency.value=f;o2.frequency.value=f*2;
+    g.gain.setValueAtTime(0.34,ac.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+dur);
+    g2.gain.setValueAtTime(0.09,ac.currentTime);g2.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+dur*0.5);
+    o.start();o2.start();o.stop(ac.currentTime+dur);o2.stop(ac.currentTime+dur);
+  }catch(e){}
+}
+function playError(){try{const ac=getAC();const o=ac.createOscillator();const g=ac.createGain();o.connect(g);g.connect(ac.destination);o.type='sawtooth';o.frequency.setValueAtTime(220,ac.currentTime);o.frequency.exponentialRampToValueAtTime(80,ac.currentTime+0.3);g.gain.setValueAtTime(0.18,ac.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.3);o.start();o.stop(ac.currentTime+0.3);}catch(e){}}
+function playWin(){['C','E','G','C'].forEach((n,i)=>setTimeout(()=>playTone(n,0.8),i*130));}
+function playFanfare(){const m=[['C','E','G'],['E','G','B'],['G','B','E'],['C','E','G','B']];m.forEach((ch,i)=>setTimeout(()=>ch.forEach(n=>playTone(n,0.7)),i*420));}
+function playCelebrate(){['C','D','E','F','G','A','B','C'].forEach((n,i)=>setTimeout(()=>playTone(n,0.5),i*80));}
+
+/* ══════════════════════════════════
+   KEY DEFINITIONS
+══════════════════════════════════ */
+const ALL_KEYS=[
+  {note:'C',type:'w',color:'#ef4444'},{note:'C#',type:'b',color:'#f97316'},
+  {note:'D',type:'w',color:'#eab308'},{note:'D#',type:'b',color:'#22c55e'},
+  {note:'E',type:'w',color:'#3b82f6'},{note:'F',type:'w',color:'#8b5cf6'},
+  {note:'F#',type:'b',color:'#ec4899'},{note:'G',type:'w',color:'#14b8a6'},
+  {note:'G#',type:'b',color:'#f59e0b'},{note:'A',type:'w',color:'#6366f1'},
+  {note:'A#',type:'b',color:'#10b981'},{note:'B',type:'w',color:'#f43f5e'}
+];
+const WHITE_KEYS=ALL_KEYS.filter(k=>k.type==='w');
+const NC={};ALL_KEYS.forEach(k=>NC[k.note]=k.color);
+
+/* ══════════════════════════════════
+   GAME STATE
+══════════════════════════════════ */
+let PLAYER_NAME='Maestro';
+const MAX_LIVES=3; // ← single source of truth for lives count
+
+let G={
+  currentLevel:1,levelStars:{},totalScore:0,levelScore:0,
+  lives:MAX_LIVES,combo:0,maxCombo:0,correct:0,wrong:0,
+  hintUsed:false,step:0,
+  simonSeq:[],simonStep:0,simonPhase:'show',
+  gameActive:false,activeLevel:null
+};
+
+/* ══════════════════════════════════
+   LEVEL DATA
+══════════════════════════════════ */
+const LEVELS=[
+  {id:1,name:'First Touch',emoji:'✨',bg:'linear-gradient(135deg,rgba(129,140,248,0.12),rgba(99,102,241,0.04))',color:'#818cf8',btnBg:'linear-gradient(135deg,#818cf8,#6366f1)',desc:'Every master was once a beginner. Discover the soul of the piano — one glowing note at a time.',goal:'Play all 5 notes in sequence: C → E → G → E → C',skills:['Note Recognition','Hand Coordination','Listening'],type:'single',notes:['C','D','E','F','G'],sequence:['C','E','G','E','C'],instruction:'The glowing key is calling you — press it!',successMsg:'Perfect First Touch!'},
+  {id:2,name:'Pattern Seeker',emoji:'🔮',bg:'linear-gradient(135deg,rgba(192,132,252,0.12),rgba(139,92,246,0.04))',color:'#c084fc',btnBg:'linear-gradient(135deg,#c084fc,#a855f7)',desc:'Music is built from patterns. Watch the sequence light up and play along.',goal:'Echo back the growing sequence — reach 5 notes to win!',skills:['Memory','Pattern Recognition','Rhythm'],type:'simon',notes:['C','D','E','F','G'],maxLength:5,instruction:'Watch closely, then repeat!',successMsg:'Incredible Memory!'},
+  {id:3,name:'Melody Builder',emoji:'🎼',bg:'linear-gradient(135deg,rgba(52,211,153,0.12),rgba(16,185,129,0.04))',color:'#34d399',btnBg:'linear-gradient(135deg,#34d399,#10b981)',desc:"You know notes. You know patterns. Now weave them into melody.",goal:'Play "Twinkle Twinkle" — all 8 notes perfectly',skills:['Melody','Timing','Musical Phrasing'],type:'melody',notes:['C','D','E','F','G','A'],sequence:['C','C','G','G','A','A','G','F'],labels:['Twi','nkle','Twi','nkle','Lit','tle','Star','...'],instruction:'Follow the glowing note trail!',successMsg:'You Played a Song!'},
+  {id:4,name:'Happy Birthday!',emoji:'🎂',bg:'linear-gradient(135deg,rgba(255,0,110,0.12),rgba(192,132,252,0.06))',color:'#ff006e',btnBg:'linear-gradient(135deg,#ff006e,#c084fc)',desc:"The world's most famous song — played by you. Play all 25 notes!",goal:'Play all 25 notes of Happy Birthday',skills:['Full Song','Expression','Dedication'],type:'birthday',notes:['C','D','E','F','G','A','B'],instruction:"The stage is set — play Happy Birthday!",successMsg:'Happy Birthday! 🎉'},
+  {id:5,name:'Grand Finale',emoji:'👑',bg:'linear-gradient(135deg,rgba(245,200,66,0.12),rgba(255,171,0,0.04))',color:'#f5c842',btnBg:'linear-gradient(135deg,#f5c842,#ffab00)',desc:"Beethoven's Ode to Joy — played by you. All 15 notes. This is mastery.",goal:'Complete Ode to Joy — all 15 notes from start to finish',skills:['Full Composition','Expression','Mastery'],type:'song',notes:['C','D','E','F','G'],instruction:"The stage is yours — play it!",successMsg:"Beethoven Would Be Proud!"}
+];
+
+const BDAY_SEQ=['G','G','A','G','C','B','G','G','A','G','D','C','G','G','G','E','C','B','A','F','F','E','C','D','C'];
+const BDAY_LBL=['Hap','py','Birth','day','to','you','Hap','py','Birth','day','to','you','Hap','py','Birth','day','dear','…','…','Hap','py','Birth','day','to','you'];
+const ODE=['E','E','F','G','G','F','E','D','C','C','D','E','E','D','D'];
+
+/* ══════════════════════════════════
+   SCREEN MANAGER
+══════════════════════════════════ */
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+
+function showHome(){updateHomeStats();show('home');buildLevelGrid();}
+
+function updateHomeStats(){
+  document.getElementById('stat-score').textContent=G.totalScore.toLocaleString();
+  const stars=Object.values(G.levelStars).reduce((a,b)=>a+b,0);
+  document.getElementById('stat-stars').textContent=stars;
+  document.getElementById('stat-levels').textContent=Object.keys(G.levelStars).length+'/5';
+  document.getElementById('home-player-name').textContent=PLAYER_NAME;
+}
+
+function buildLevelGrid(){
+  const grid=document.getElementById('level-grid');grid.innerHTML='';
+  LEVELS.forEach(lv=>{
+    const stars=G.levelStars[lv.id]||0;const done=stars>0;
+    const card=document.createElement('div');
+    card.className=`lcard lcard-${lv.id}${done?' completed':''}`;
+    card.innerHTML=`<span class="lcard-emoji">${lv.emoji}</span><div class="lcard-num">${lv.id}</div><div class="lcard-name">${lv.name}</div><div class="lcard-stars">${'⭐'.repeat(stars)}${'☆'.repeat(3-stars)}</div><div class="lcard-bar"><div class="lcard-bar-fill" style="width:${stars/3*100}%"></div></div>`;
+    card.onclick=()=>showIntro(lv.id);
+    grid.appendChild(card);
+  });
+  document.getElementById('home-cta').onclick=()=>{
+    const next=LEVELS.find(l=>!G.levelStars[l.id]);showIntro(next?next.id:1);
+  };
+}
+
+/* ══════════════════════════════════
+   SPLASH → NAME → HOME
+══════════════════════════════════ */
+function buildSplashKeys(){
+  const w=document.getElementById('splash-keys');
+  ['w','b','w','b','w','w','b','w','b','w','b','w'].forEach(t=>{const el=document.createElement('div');el.className=t==='w'?'sk-w':'sk-b';w.appendChild(el);});
+  Array.from(w.children).forEach((el,i)=>setTimeout(()=>{el.style.transform='translateY(-18px)';setTimeout(()=>el.style.transform='',160);},i*65));
+}
+buildSplashKeys();
+setTimeout(()=>{
+  show('namescreen');
+  const inp=document.getElementById('player-name-input');
+  const btn=document.getElementById('name-confirm-btn');
+  const go=()=>{const n=inp.value.trim();if(!n){inp.style.borderColor='#f87171';inp.focus();return;}PLAYER_NAME=n;showHome();};
+  btn.onclick=go;inp.addEventListener('keydown',e=>{if(e.key==='Enter')go();});
+  setTimeout(()=>inp.focus(),200);
+},3200);
+
+/* ══════════════════════════════════
+   INTRO
+══════════════════════════════════ */
+function showIntro(id){
+  const lv=LEVELS.find(l=>l.id===id);G.currentLevel=id;
+  document.getElementById('intro-badge').textContent=`Level ${lv.id} · ${lv.name}`;
+  document.getElementById('intro-emoji').textContent=lv.emoji;
+  document.getElementById('intro-title').textContent=lv.name;
+  document.getElementById('intro-desc').textContent=lv.desc;
+  document.getElementById('intro-goal').textContent=lv.goal;
+  const sk=document.getElementById('intro-skills');
+  sk.innerHTML=lv.skills.map(s=>`<div class="skill-chip">✦ ${s}</div>`).join('');
+  const pb=document.getElementById('intro-play-btn');
+  pb.style.background=lv.btnBg;pb.onclick=()=>startLevel(id);
+  show('intro');
+}
+
+/* ══════════════════════════════════
+   BUILD PIANO
+══════════════════════════════════ */
+function buildPiano(wrapId,availNotes,onPress){
+  const wrap=document.getElementById(wrapId);if(!wrap)return;wrap.innerHTML='';
+  const wkeys=WHITE_KEYS.filter(k=>availNotes.includes(k.note));
+  const iw=Math.min(innerWidth,640)-48;
+  const kw=Math.min(70,Math.floor((iw-(wkeys.length-1)*2)/wkeys.length));
+  const kh=Math.round(kw*2);const totalW=kw*wkeys.length+(wkeys.length-1)*2;
+  wrap.style.cssText=`width:${totalW}px;height:${kh}px;position:relative;`;
+  const row=document.createElement('div');row.className='keys-row';
+  wkeys.forEach(k=>{
+    const el=document.createElement('div');el.className='wkey';
+    el.id='k-'+k.note.replace('#','s');
+    el.style.cssText=`width:${kw}px;height:${kh}px;`;
+    el.innerHTML=`<span>${k.note}</span>`;
+    const press=e=>{e.preventDefault();if(el.dataset.locked)return;el.classList.add('pressing');addRipple(el,NC[k.note]);onPress(k.note);};
+    el.addEventListener('mousedown',press);el.addEventListener('touchstart',press,{passive:false});
+    el.addEventListener('mouseup',()=>el.classList.remove('pressing'));el.addEventListener('touchend',()=>el.classList.remove('pressing'));
+    row.appendChild(el);
+  });
+  wrap.appendChild(row);
+  wkeys.forEach((wk,wi)=>{
+    const bn=wk.note+'#';if(!availNotes.includes(bn))return;
+    const bk=ALL_KEYS.find(k=>k.note===bn);if(!bk)return;
+    const left=wi*(kw+2)+Math.round(kw*0.63);
+    const el=document.createElement('div');el.className='bkey';
+    el.id='k-'+bn.replace('#','s');
+    el.style.cssText=`left:${left}px;width:${Math.round(kw*0.57)}px;height:${Math.round(kh*0.61)}px;`;
+    const press=e=>{e.preventDefault();if(el.dataset.locked)return;el.classList.add('pressing');addRipple(el,bk.color);onPress(bn);};
+    el.addEventListener('mousedown',press);el.addEventListener('touchstart',press,{passive:false});
+    el.addEventListener('mouseup',()=>el.classList.remove('pressing'));el.addEventListener('touchend',()=>el.classList.remove('pressing'));
+    wrap.appendChild(el);
+  });
+}
+
+function getKEl(note,scope){
+  if(scope)return scope.querySelector('#k-'+note.replace('#','s'));
+  return document.getElementById('k-'+note.replace('#','s'));
+}
+
+function glowKey(note,on,color,scope){
+  const el=getKEl(note,scope);if(!el)return;
+  const c=color||NC[note];const isBlack=note.includes('#');
+  if(on){el.style.background=`linear-gradient(180deg,${c}66 0%,${c}33 100%)`;el.classList.add('glow');el.style.color=c;el.style.boxShadow=`0 5px 0 ${c},0 0 22px ${c},0 7px 18px rgba(0,0,0,0.45)`;}
+  else{el.style.background=isBlack?'linear-gradient(180deg,#2e2840 0%,#110e1a 100%)':'linear-gradient(180deg,#fffef5 0%,#ede0c8 100%)';el.classList.remove('glow');el.style.color='';el.style.boxShadow='';}
+}
+
+function flashKeyEl(el,type){if(!el)return;el.classList.add('flash-'+type);setTimeout(()=>el.classList.remove('flash-'+type),380);}
+function flashKey(note){flashKeyEl(getKEl(note),'correct');}
+function flashKeyWrong(note){flashKeyEl(getKEl(note),'wrong');}
+function flashBdayKey(note,type){flashKeyEl(getKEl(note,document.getElementById('bday-piano-wrap')),type);}
+
+function addRipple(el,color){const r=document.createElement('div');r.className='ripple';r.style.cssText=`width:${el.offsetWidth}px;height:${el.offsetHeight}px;background:${color}55;top:0;left:0;`;el.appendChild(r);setTimeout(()=>r.remove(),660);}
+
+/* ══════════════════════════════════
+   LIVES HELPERS
+══════════════════════════════════ */
+/* Game screen lives — compact ❤️ + count */
+function renderGameLives(){
+  document.getElementById('lives-count').textContent=G.lives;
+  const heart=document.querySelector('.lives-heart');
+  if(heart){heart.textContent=G.lives>0?'❤️':'💔';}
+}
+
+/* Birthday screen lives — up to MAX_LIVES mini hearts */
+function renderBdayLives(){
+  const wrap=document.getElementById('bday-hearts');
+  const countEl=document.getElementById('bday-lives-count');
+  if(!wrap)return;
+  wrap.innerHTML='';
+  for(let i=0;i<MAX_LIVES;i++){
+    const s=document.createElement('span');s.className='bday-heart';
+    s.textContent=i<G.lives?'❤️':'🖤';wrap.appendChild(s);
+  }
+  if(countEl)countEl.textContent=`${G.lives}/${MAX_LIVES}`;
+}
+
+function loseLife(isBday=false){
+  G.lives=Math.max(0,G.lives-1);
+  // Screen flash
+  const fl=document.createElement('div');fl.className='life-lost-flash';document.body.appendChild(fl);setTimeout(()=>fl.remove(),500);
+  if(isBday)renderBdayLives();else renderGameLives();
+}
+
+function updateScore(){document.getElementById('score-display').textContent=G.levelScore.toLocaleString();}
+function updateProgress(pct){document.getElementById('prog-fill').style.width=pct+'%';}
+function addScore(pts){G.levelScore+=pts;G.totalScore+=pts;updateScore();scoreFloat(pts);}
+function scoreFloat(pts){const el=document.createElement('div');el.style.cssText='position:fixed;top:78px;left:50%;transform:translateX(-50%);font-family:var(--font-d);font-size:24px;font-weight:900;color:var(--gold);z-index:100;pointer-events:none;animation:scoreFloat 0.85s ease forwards;';el.textContent='+'+pts;document.body.appendChild(el);setTimeout(()=>el.remove(),860);}
+function showCombo(){G.combo++;if(G.combo>G.maxCombo)G.maxCombo=G.combo;if(G.combo>=3){const cb=document.getElementById('combo-badge');cb.textContent='🔥 '+G.combo+'x COMBO!';cb.classList.add('show');setTimeout(()=>cb.classList.remove('show'),1600);}}
+function setFeedback(txt,type){const fb=document.getElementById('fb-text');if(!fb)return;fb.textContent=txt;fb.className='feedback-text '+(type||'');setTimeout(()=>{if(fb)fb.textContent='';},1200);}
+function setHint(txt){const h=document.getElementById('hint-text-el');if(h)h.textContent=txt;}
+
+function doHint(){
+  G.hintUsed=true;const lv=G.activeLevel;if(!lv||!G.gameActive)return;
+  const n=lv.type==='simon'?G.simonSeq[G.simonStep]:lv.sequence?.[G.step];
+  if(!n)return;setHint(`💡 Next: "${n}"`);glowKey(n,true);setTimeout(()=>setHint(''),2600);
+}
+
+/* ══════════════════════════════════
+   START LEVEL
+══════════════════════════════════ */
+function startLevel(id){
+  const lv=LEVELS.find(l=>l.id===id);
+  G.activeLevel=lv;G.step=0;G.correct=0;G.wrong=0;G.hintUsed=false;G.levelScore=0;G.lives=MAX_LIVES;G.combo=0;G.maxCombo=0;G.gameActive=true;
+  document.getElementById('game-over-overlay').classList.add('hidden');
+  if(lv.type==='birthday'){initBirthday(lv);return;}
+  if(lv.type==='song'){initFinale();return;}
+  document.getElementById('prog-fill').style.background=lv.color;
+  document.getElementById('prog-glow').style.background=lv.color;
+  document.getElementById('prog-fill').style.width='0%';
+  document.getElementById('topbar-level').textContent=`Level ${lv.id}`;
+  document.getElementById('topbar-name').textContent=lv.emoji+' '+lv.name;
+  renderGameLives();updateScore();
+  document.getElementById('hint-btn').onclick=()=>doHint();
+  document.getElementById('game-body').innerHTML='';
+  show('game');
+  if(lv.type==='single')initSingle(lv);
+  else if(lv.type==='simon')initSimon(lv);
+  else if(lv.type==='melody')initMelody(lv);
+}
+
+/* ═══ LEVEL 1 — SINGLE ═══ */
+function initSingle(lv){
+  const body=document.getElementById('game-body');
+  body.innerHTML=`<div class="instruction-card"><div class="inst-step">Step ${G.step+1} of ${lv.sequence.length}</div><div class="inst-main" id="inst-main">${lv.instruction}</div></div><div class="note-track" id="note-track"></div><div class="feedback-area"><div class="feedback-text" id="fb-text"></div></div><div class="hint-text" id="hint-text-el">Press the glowing key!</div>`;
+  const track=document.getElementById('note-track');
+  lv.sequence.forEach((n,i)=>{const p=document.createElement('div');p.className='note-pip';p.id='pip-'+i;p.style.background=NC[n];p.textContent=n;track.appendChild(p);});
+  buildPiano('piano-keys-wrap',lv.notes,note=>handleSingle(note,lv));
+  glowKey(lv.sequence[0],true);highlightPip(0);
+}
+function highlightPip(idx){document.querySelectorAll('.note-pip').forEach((p,i)=>{p.classList.remove('active');if(i<idx)p.classList.add('done');});const c=document.getElementById('pip-'+idx);if(c)c.classList.add('active');}
+function handleSingle(note,lv){
+  if(!G.gameActive)return;playTone(note);
+  if(note===lv.sequence[G.step]){
+    flashKey(note);const pip=document.getElementById('pip-'+G.step);if(pip){pip.classList.add('done');pip.classList.remove('active');}
+    G.step++;G.correct++;addScore(100+G.combo*10);showCombo();
+    setFeedback(['Great!','Perfect!','Beautiful!','Brilliant!','On fire!'][Math.floor(Math.random()*5)],'correct');
+    updateProgress(G.step/lv.sequence.length*100);glowKey(lv.sequence[G.step-1],false);
+    if(G.step>=lv.sequence.length){G.gameActive=false;setTimeout(()=>levelComplete(lv),700);}
+    else{glowKey(lv.sequence[G.step],true);highlightPip(G.step);const inst=document.getElementById('inst-main');if(inst)inst.textContent=`Step ${G.step+1} of ${lv.sequence.length}`;}
+  }else{
+    flashKeyWrong(note);playError();G.wrong++;G.combo=0;
+    loseLife();setFeedback('Try the glowing key!','wrong');
+    if(G.lives<=0)triggerGameOver(lv.id);
+  }
+}
+
+/* ═══ LEVEL 2 — SIMON ═══ */
+function initSimon(lv){
+  G.simonSeq=[];G.simonStep=0;G.simonPhase='show';
+  const body=document.getElementById('game-body');
+  body.innerHTML=`<div class="instruction-card"><div class="inst-step" id="simon-round-lbl">Round 1 of ${lv.maxLength}</div><div class="inst-main" id="inst-main">Get ready…</div></div><div class="note-track" id="simon-track"></div><div class="feedback-area"><div class="feedback-text" id="fb-text"></div></div><div class="hint-text" id="hint-text-el"></div>`;
+  buildPiano('piano-keys-wrap',lv.notes,note=>handleSimon(note,lv));
+  setTimeout(()=>simonNext(lv),800);
+}
+function simonNext(lv){
+  const n=lv.notes[Math.floor(Math.random()*lv.notes.length)];G.simonSeq.push(n);G.simonStep=0;G.simonPhase='show';
+  const rl=document.getElementById('simon-round-lbl');if(rl)rl.textContent=`Round ${G.simonSeq.length} of ${lv.maxLength}`;
+  updateProgress(G.simonSeq.length/lv.maxLength*100);
+  const tr=document.getElementById('simon-track');if(tr){tr.innerHTML='';G.simonSeq.forEach((sn,i)=>{const p=document.createElement('div');p.className='note-pip';p.id='sp-'+i;p.style.background=NC[sn];p.textContent=sn;tr.appendChild(p);});}
+  const inst=document.getElementById('inst-main');if(inst)inst.textContent='Watch carefully…';
+  simonPlay(lv);
+}
+function simonPlay(lv){
+  G.simonPhase='show';let i=0;
+  const go=()=>{
+    if(i>0){const prev=G.simonSeq[i-1];glowKey(prev,false);const pp=document.getElementById('sp-'+(i-1));if(pp)pp.classList.remove('active');}
+    if(i>=G.simonSeq.length){G.simonPhase='input';G.simonStep=0;const inst=document.getElementById('inst-main');if(inst)inst.textContent='Your turn — repeat the sequence!';return;}
+    const cn=G.simonSeq[i];glowKey(cn,true);playTone(cn,0.55);const pp=document.getElementById('sp-'+i);if(pp)pp.classList.add('active');i++;setTimeout(go,660);
+  };go();
+}
+function handleSimon(note,lv){
+  if(G.simonPhase!=='input'||!G.gameActive)return;playTone(note);
+  if(note===G.simonSeq[G.simonStep]){
+    flashKey(note);const pp=document.getElementById('sp-'+G.simonStep);if(pp){pp.classList.add('done');pp.classList.remove('active');}
+    G.simonStep++;G.correct++;addScore(80+G.simonSeq.length*20);showCombo();
+    setFeedback(['Nice!','Yes!','Perfect!','Keep going!'][Math.floor(Math.random()*4)],'correct');
+    if(G.simonStep>=G.simonSeq.length){setFeedback('🎉 Round Complete!','correct');addScore(200);if(G.simonSeq.length>=lv.maxLength){G.gameActive=false;setTimeout(()=>levelComplete(lv),900);return;}setTimeout(()=>simonNext(lv),1300);}
+  }else{
+    flashKeyWrong(note);playError();G.wrong++;G.combo=0;
+    loseLife();setFeedback('Watch again!','wrong');
+    if(G.lives<=0){triggerGameOver(lv.id);return;}
+    setTimeout(()=>simonPlay(lv),1000);
+  }
+}
+
+/* ═══ LEVEL 3 — MELODY ═══ */
+function initMelody(lv){
+  const body=document.getElementById('game-body');
+  body.innerHTML=`<div class="instruction-card"><div class="inst-step">Twinkle Twinkle Little Star</div><div class="inst-main">${lv.instruction}</div></div><div class="sheet-wrap"><div class="sheet-row" id="sheet-row"></div></div><div class="feedback-area"><div class="feedback-text" id="fb-text"></div></div><div class="hint-text" id="hint-text-el">Follow the glowing note!</div>`;
+  const row=document.getElementById('sheet-row');
+  lv.sequence.forEach((n,i)=>{const el=document.createElement('div');el.className='sheet-note';el.id='sn-'+i;el.innerHTML=`<div class="sheet-note-circle" style="background:${NC[n]};color:${NC[n]};">${n}</div><div class="sheet-note-label">${lv.labels[i]||''}</div>`;row.appendChild(el);});
+  buildPiano('piano-keys-wrap',lv.notes,note=>handleMelody(note,lv));
+  markMelodyStep(lv);
+}
+function markMelodyStep(lv){
+  document.querySelectorAll('.sheet-note').forEach((el,i)=>{el.classList.remove('current');if(i<G.step)el.classList.add('played');});
+  const cur=document.getElementById('sn-'+G.step);if(cur)cur.classList.add('current');
+  lv.notes.forEach(n=>glowKey(n,false));if(G.step<lv.sequence.length)glowKey(lv.sequence[G.step],true);
+}
+function handleMelody(note,lv){
+  if(!G.gameActive)return;playTone(note);
+  if(note===lv.sequence[G.step]){
+    flashKey(note);glowKey(note,false);const sn=document.getElementById('sn-'+G.step);if(sn){sn.classList.add('played');sn.classList.remove('current');}
+    G.step++;G.correct++;addScore(120+G.combo*15);showCombo();
+    setFeedback(['Melody magic!','Sweet!','Harmonious!','Perfect!'][Math.floor(Math.random()*4)],'correct');
+    updateProgress(G.step/lv.sequence.length*100);
+    if(G.step>=lv.sequence.length){G.gameActive=false;setTimeout(()=>levelComplete(lv),700);}else markMelodyStep(lv);
+  }else{
+    flashKeyWrong(note);playError();G.wrong++;G.combo=0;
+    loseLife();setFeedback('Look at the glow!','wrong');
+    if(G.lives<=0)triggerGameOver(lv.id);
+  }
+}
+
+/* ═══ GAME OVER ═══ */
+function triggerGameOver(levelId){
+  G.gameActive=false;
+  document.getElementById('game-over-sub').textContent=`The song slipped away at Level ${levelId}. Want to try again?`;
+  document.getElementById('btn-retry').onclick=()=>startLevel(levelId);
+  document.getElementById('game-over-overlay').classList.remove('hidden');
+}
+function triggerBdayGameOver(){
+  G.gameActive=false;
+  document.getElementById('game-over-sub').textContent=`Almost there — but you ran out of lives on Happy Birthday! Try again?`;
+  document.getElementById('btn-retry').onclick=()=>{document.getElementById('game-over-overlay').classList.add('hidden');startLevel(4);};
+  document.getElementById('game-over-overlay').classList.remove('hidden');
+}
+
+/* ═══ LEVEL 4 — HAPPY BIRTHDAY ═══ */
+function initBirthday(lv){
+  G.step=0;G.gameActive=true;G.correct=0;G.wrong=0;G.levelScore=0;G.lives=MAX_LIVES;
+  document.getElementById('bday-player-name').textContent=PLAYER_NAME+'! 🎉';
+  renderBdayLives();
+
+  const row=document.getElementById('bday-notes-row');row.innerHTML='';
+  BDAY_SEQ.forEach((n,i)=>{
+    const el=document.createElement('div');el.className='bday-n';el.id='bn-'+i;
+    el.innerHTML=`<div class="bday-circle" style="background:${NC[n]};color:${NC[n]};">${n}</div><div class="bday-label">${BDAY_LBL[i]||''}</div>`;
+    row.appendChild(el);
+  });
+  document.getElementById('bday-progress').textContent='Note 0 / '+BDAY_SEQ.length;
+  document.getElementById('bday-prog-fill').style.width='0%';
+  document.getElementById('bday-feedback').textContent='';
+  document.getElementById('bday-hint-area').textContent='';
+
+  const bdayNotes=[...new Set(BDAY_SEQ)];
+  buildPiano('bday-piano-wrap',bdayNotes,note=>handleBday(note));
+  markBdayStep();
+
+  document.getElementById('bday-hint-btn').onclick=()=>{
+    G.hintUsed=true;const n=BDAY_SEQ[G.step];
+    document.getElementById('bday-hint-area').textContent=`💡 Hint: Press "${n}"`;
+    const scope=document.getElementById('bday-piano-wrap');
+    glowKey(n,true,null,scope);setTimeout(()=>{if(document.getElementById('bday-hint-area'))document.getElementById('bday-hint-area').textContent='';},2500);
+  };
+  show('birthday');
+}
+
+function markBdayStep(){
+  document.querySelectorAll('.bday-n').forEach((el,i)=>{el.classList.remove('current');if(i<G.step)el.classList.add('played');});
+  const cur=document.getElementById('bn-'+G.step);
+  if(cur){cur.classList.add('current');cur.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});}
+  const scope=document.getElementById('bday-piano-wrap');
+  const allN=[...new Set(BDAY_SEQ)];allN.forEach(n=>glowKey(n,false,null,scope));
+  if(G.step<BDAY_SEQ.length)glowKey(BDAY_SEQ[G.step],true,null,scope);
+  document.getElementById('bday-progress').textContent=`Note ${G.step} / ${BDAY_SEQ.length}`;
+  document.getElementById('bday-prog-fill').style.width=(G.step/BDAY_SEQ.length*100)+'%';
+}
+
+function handleBday(note){
+  if(!G.gameActive)return;playTone(note,1.0);
+  const fb=document.getElementById('bday-feedback');
+  const scope=document.getElementById('bday-piano-wrap');
+  if(note===BDAY_SEQ[G.step]){
+    flashBdayKey(note,'correct');glowKey(note,false,null,scope);
+    const bn=document.getElementById('bn-'+G.step);if(bn){bn.classList.add('played');bn.classList.remove('current');}
+    G.step++;G.correct++;G.levelScore+=150;G.totalScore+=150;
+    fb.style.color='#4ade80';
+    fb.textContent=['🎶 Perfect!','🎵 Beautiful!','🎉 Yes!','✨ Wonderful!','🎸 Nailed it!'][Math.floor(Math.random()*5)];
+    if(G.step>=BDAY_SEQ.length){
+      G.gameActive=false;
+      G.levelStars[4]=G.wrong===0?3:G.wrong<=3?2:1;
+      fb.style.color='#f5c842';
+      fb.textContent='🎂🎉 Happy Birthday, '+PLAYER_NAME+'! 🎉🎂';
+      playCelebrate();spawnConfetti('#ff006e');setTimeout(()=>spawnConfetti('#f5c842'),500);setTimeout(()=>spawnConfetti('#c084fc'),1000);
+      const lv=LEVELS.find(l=>l.id===4);
+      setTimeout(()=>showLevelComplete(lv,()=>initFinale(),'Happy Birthday! 🎉',`You played Happy Birthday for ${PLAYER_NAME}!`,'👑 Grand Finale ▶'),3000);
+    }else{markBdayStep();}
+  }else{
+    flashBdayKey(note,'wrong');playError();G.wrong++;
+    loseLife(true);
+    fb.style.color='#f87171';fb.textContent='Almost — check the glow!';
+    setTimeout(()=>{if(fb&&fb.textContent.includes('glow'))fb.textContent='';},900);
+    if(G.lives<=0)triggerBdayGameOver();
+  }
+}
+
+/* ═══ SHARED LEVEL COMPLETE BUILDER ═══ */
+function showLevelComplete(lv,nextFn,title,sub,nextLabel){
+  G.gameActive=false;
+  const stars=lv.id===4?G.levelStars[4]:(G.wrong===0?3:G.wrong<=2?2:1);
+  G.levelStars[lv.id]=Math.max(G.levelStars[lv.id]||0,stars);
+  playWin();spawnConfetti(lv.color);
+  document.getElementById('complete-bg').style.background=lv.bg;
+  document.getElementById('trophy-glow').style.background=lv.color;
+  document.getElementById('complete-trophy').textContent=stars===3?'🏆':stars===2?'🥈':'🥉';
+  document.getElementById('complete-title').textContent=title||lv.successMsg;
+  document.getElementById('complete-sub').textContent=sub||(G.hintUsed?'You used a hint — try without next time!':'Flawless — no hints needed!');
+  const sr=document.getElementById('stars-row');sr.innerHTML='';
+  for(let i=0;i<3;i++){const s=document.createElement('div');s.className='star-item';s.textContent=i<stars?'⭐':'☆';sr.appendChild(s);}
+  document.getElementById('sc-correct').textContent=G.correct;
+  document.getElementById('sc-wrong').textContent=G.wrong;
+  document.getElementById('sc-score').textContent=G.levelScore.toLocaleString();
+  const xp=stars*100+G.correct*20;
+  document.getElementById('xp-label').textContent=`+${xp} XP Earned`;
+  setTimeout(()=>document.getElementById('xp-bar').style.width='100%',100);
+  // reset xp bar for next time
+  setTimeout(()=>document.getElementById('xp-bar').style.width='0%',100);
+  setTimeout(()=>document.getElementById('xp-bar').style.width='100%',200);
+  const nb=document.getElementById('btn-next');
+  nb.textContent=nextLabel||'Next Level ▶';
+  nb.onclick=nextFn;
+  show('complete');
+}
+
+function levelComplete(lv){
+  showLevelComplete(lv,()=>{
+    if(lv.id<4)showIntro(lv.id+1);else initFinale();
+  });
+}
+
+/* ═══ LEVEL 5 — ODE TO JOY ═══ */
+function initFinale(){
+  G.step=0;G.gameActive=true;G.levelScore=0;G.correct=0;G.wrong=0;G.lives=99;G.activeLevel=LEVELS[4];
+  document.getElementById('prog-fill').style.background='#f5c842';
+  document.getElementById('prog-glow').style.background='#f5c842';
+  document.getElementById('prog-fill').style.width='0%';
+  document.getElementById('topbar-level').textContent='Level 5 · Grand Finale';
+  document.getElementById('topbar-name').textContent='👑 Ode to Joy — Beethoven';
+  // infinite lives for finale — hide the lives counter
+  document.getElementById('lives-display').style.display='none';
+  document.getElementById('score-display').textContent='0';
+  const body=document.getElementById('game-body');
+  body.innerHTML=`
+    <div class="instruction-card">
+      <div class="inst-step">Ode to Joy — Beethoven · ${ODE.length} Notes</div>
+      <div class="inst-main">Follow the glowing key — play all ${ODE.length} notes!</div>
+    </div>
+    <div class="sheet-wrap" style="margin-bottom:12px;"><div class="sheet-row" id="ode-row"></div></div>
+    <div class="feedback-area"><div class="feedback-text" id="fb-text"></div></div>
+    <div class="hint-text" id="hint-text-el"></div>
+  `;
+  const row=document.getElementById('ode-row');
+  ODE.forEach((n,i)=>{const el=document.createElement('div');el.className='sheet-note';el.id='ode-'+i;el.innerHTML=`<div class="sheet-note-circle" style="background:${NC[n]};color:${NC[n]};">${n}</div><div class="sheet-note-label">♩</div>`;row.appendChild(el);});
+  const odeNotes=[...new Set(ODE)];
+  buildPiano('piano-keys-wrap',odeNotes,note=>handleOde(note));
+  document.getElementById('lives-display').style.display='flex';
+  renderGameLives();
+  document.getElementById('hint-btn').onclick=()=>{
+    G.hintUsed=true;const n=ODE[G.step];setHint(`💡 Next: "${n}"`);glowKey(n,true);setTimeout(()=>setHint(''),2600);
+  };
+  show('game');
+  markOdeStep();
+}
+function markOdeStep(){
+  document.querySelectorAll('.sheet-note').forEach((el,i)=>{el.classList.remove('current');if(i<G.step)el.classList.add('played');});
+  const cur=document.getElementById('ode-'+G.step);if(cur){cur.classList.add('current');cur.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});}
+  const allN=[...new Set(ODE)];allN.forEach(n=>glowKey(n,false));
+  if(G.step<ODE.length)glowKey(ODE[G.step],true);
+  updateProgress(G.step/ODE.length*100);
+  document.getElementById('score-display').textContent=G.levelScore.toLocaleString();
+}
+function handleOde(note){
+  if(!G.gameActive)return;playTone(note,1.0);
+  if(note===ODE[G.step]){
+    flashKey(note);glowKey(note,false);
+    const oe=document.getElementById('ode-'+G.step);if(oe){oe.classList.add('played');oe.classList.remove('current');}
+    G.step++;G.correct++;G.levelScore+=160;G.totalScore+=160;
+    setFeedback(['Magnificent!','Bravo!','Beautiful!','Perfect!','Stunning!'][Math.floor(Math.random()*5)],'correct');
+    if(G.step>=ODE.length){
+      G.gameActive=false;G.levelStars[5]=3;
+      setFeedback('🎉🎉 BRAVO! Beethoven would be proud! 🎉🎉','correct');
+      playFanfare();spawnConfetti('#f5c842');
+      setTimeout(()=>spawnConfetti('#c084fc'),500);setTimeout(()=>spawnConfetti('#34d399'),1000);
+      setTimeout(()=>showVictory(),3200);
+    }else markOdeStep();
+  }else{
+    // Finale is forgiving — no life lost, just feedback
+    flashKeyWrong(note);playError();G.wrong++;
+    setFeedback('Almost! Check the glow ✨','wrong');
+  }
+}
+
+/* ═══ VICTORY ═══ */
+function showVictory(){
+  document.getElementById('total-score-num').textContent=G.totalScore.toLocaleString();
+  const badges=[{icon:'🎹',name:'Pianist'},{icon:'🏆',name:'Champion'},{icon:'🎂',name:'B-day DJ'},{icon:'🎵',name:'Musician'},{icon:'👑',name:'Master'},{icon:'⭐',name:'All Stars'}];
+  const br=document.getElementById('badge-row');br.innerHTML='';
+  badges.forEach(b=>{const el=document.createElement('div');el.className='achievement-badge';el.innerHTML=`<span class="badge-icon">${b.icon}</span><div class="badge-name">${b.name}</div>`;br.appendChild(el);});
+  playFanfare();spawnConfetti('#f5c842');setTimeout(()=>spawnConfetti('#c084fc'),500);setTimeout(()=>spawnConfetti('#ff006e'),1000);
+  show('victory');
+}
+
+function spawnConfetti(color){
+  const cols=[color,'#f5c842','#fff','#c084fc','#34d399','#ff006e'];
+  for(let i=0;i<36;i++){const c=document.createElement('div');c.style.cssText=`position:fixed;top:18%;left:${Math.random()*100}%;width:9px;height:9px;border-radius:${Math.random()>0.5?'50%':'2px'};background:${cols[Math.floor(Math.random()*cols.length)]};pointer-events:none;z-index:200;animation:confettiFall ${0.9+Math.random()}s ease ${Math.random()*0.5}s forwards;`;document.body.appendChild(c);setTimeout(()=>c.remove(),2200);}
+}
+
+function resetGame(){
+  G={currentLevel:1,levelStars:{},totalScore:0,levelScore:0,lives:MAX_LIVES,combo:0,maxCombo:0,correct:0,wrong:0,hintUsed:false,step:0,simonSeq:[],simonStep:0,simonPhase:'show',gameActive:false,activeLevel:null};
+  document.getElementById('game-over-overlay').classList.add('hidden');
+  showHome();
+}
+
+/* ══════════════════════════════════
+   KEYBOARD SUPPORT
+══════════════════════════════════ */
+const KB={'a':'C','w':'C#','s':'D','e':'D#','d':'E','f':'F','t':'F#','g':'G','y':'G#','h':'A','u':'A#','j':'B'};
+document.addEventListener('keydown',ev=>{
+  if(ev.repeat)return;
+  const note=KB[ev.key.toLowerCase()];if(!note||!G.gameActive)return;
+  const lv=G.activeLevel;if(!lv)return;
+  const el=getKEl(note);if(el){el.classList.add('pressing');addRipple(el,NC[note]);}
+  if(lv.type==='single')handleSingle(note,lv);
+  else if(lv.type==='simon')handleSimon(note,lv);
+  else if(lv.type==='melody')handleMelody(note,lv);
+  else if(lv.type==='birthday')handleBday(note);
+  else if(lv.type==='song')handleOde(note);
+});
+document.addEventListener('keyup',ev=>{const n=KB[ev.key.toLowerCase()];if(n){const el=getKEl(n);if(el)el.classList.remove('pressing');}});
+
+if(innerWidth>768){
+  setTimeout(()=>{const leg=document.createElement('div');leg.className='kb-legend';leg.textContent='⌨ A W S E D F T G Y H U J = C C# D D# E F F# G G# A A# B';document.body.appendChild(leg);},4500);
+}
+</script>
+</body>
+</html>

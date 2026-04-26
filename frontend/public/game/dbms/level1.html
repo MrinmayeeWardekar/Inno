@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Level 1 – Primary Key Pursuit | DBMS Quest</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="level-shared.css">
+</head>
+<body>
+ 
+<!-- ══ INTRO SCREEN ══ -->
+<div id="intro-screen" class="screen active">
+  <div class="intro-screen-wrap">
+    <div class="intro-inner">
+      <div class="mission-badge">🎯 MISSION 1 / 4</div>
+      <h1 class="intro-title">PRIMARY KEY<br>PURSUIT</h1>
+      <p class="intro-sub">Level 1 — Database Defense Academy</p>
+      <div class="intro-story">
+        <p>🚨 <strong>ALERT:</strong> The Database Academy's record systems have been corrupted! Tables are missing their Primary Keys. You must identify the correct Primary Key for each table to restore integrity and secure the system.</p>
+      </div>
+      <div class="intro-rules">
+        <div class="rule-item"><span class="rule-icon">🔑</span><span>Identify which column is the Primary Key</span></div>
+        <div class="rule-item"><span class="rule-icon">⚡</span><span>5 tables — each worth 20 XP</span></div>
+        <div class="rule-item"><span class="rule-icon">💡</span><span>Use hints if you get stuck (no XP penalty)</span></div>
+        <div class="rule-item"><span class="rule-icon">✅</span><span>Select the right column and click Confirm</span></div>
+      </div>
+      <button class="btn-start" onclick="startLevel()">▶ START MISSION</button>
+    </div>
+  </div>
+</div>
+ 
+<!-- ══ QUIZ SCREEN ══ -->
+<div id="quiz-screen" class="screen">
+  <div class="hud">
+    <div class="hud-left">
+      <button class="hud-btn" onclick="goHome()">🏠 Home</button>
+      <button class="hud-btn" onclick="goMap()">🗺️ Map</button>
+      <div class="hud-level">LEVEL 1</div>
+    </div>
+    <div class="hud-center">Primary Key Pursuit</div>
+    <div class="hud-right">
+      <div class="xp-display">⚡ <span id="xp-count">0</span> XP</div>
+      <div class="progress-text"><span id="q-current">1</span> / <span id="q-total">5</span></div>
+    </div>
+  </div>
+ 
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-fill" id="progress-fill"></div>
+  </div>
+ 
+  <div class="question-area">
+    <div class="question-card">
+      <div class="q-header">
+        <div class="q-badge">TABLE <span id="q-num">1</span></div>
+        <div class="q-title" id="q-table-name">STUDENT</div>
+      </div>
+      <p class="q-instruction">🔍 Which column is the <strong>Primary Key</strong> for this table?</p>
+      <div class="table-wrap">
+        <table class="db-table">
+          <thead><tr id="table-head"></tr></thead>
+          <tbody id="table-body"></tbody>
+        </table>
+      </div>
+      <div class="choices" id="choices"></div>
+      <div class="feedback-box" id="feedback-box"></div>
+      <div class="nav-buttons">
+        <div class="nav-left">
+          <button class="btn-hint" onclick="showHint()">💡 HINT</button>
+        </div>
+        <div class="nav-right">
+          <button class="btn-confirm" id="btn-confirm" onclick="confirmAnswer()" disabled>✔ CONFIRM</button>
+          <button class="btn-next" id="btn-next" onclick="nextQuestion()">NEXT ▶</button>
+        </div>
+      </div>
+      <div class="hint-box hidden" id="hint-box"></div>
+    </div>
+  </div>
+</div>
+ 
+<!-- ══ COMPLETE SCREEN ══ -->
+<div id="complete-screen" class="screen">
+  <div class="complete-wrap">
+    <div class="complete-inner">
+      <div class="trophy">🏆</div>
+      <div class="complete-title">MISSION COMPLETE!</div>
+      <div class="mission-name">Primary Key Pursuit</div>
+      <div class="xp-gained" id="final-xp">+100 XP</div>
+      <div class="xp-total" id="final-xp-label">100 XP Gained</div>
+      <div class="zone-info">
+        <div class="zone-emoji">🛡️</div>
+        <div>Database integrity restored! All Primary Keys identified across every table.</div>
+      </div>
+      <div class="score-summary" id="score-summary"></div>
+      <div class="bottom-buttons">
+        <button class="campus-map" onclick="goHome()">🏠 HOME</button>
+        <button class="campus-map" onclick="goMap()">🗺️ MAP</button>
+        <button class="next-mission" onclick="goNextLevel()">NEXT MISSION ➡️</button>
+      </div>
+    </div>
+  </div>
+</div>
+ 
+<script src="level1.js"></script>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>All Missions Complete – DBMS Quest</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="final.css">
+</head>
+<body>
+  <div class="stars" id="stars"></div>
+  <div class="final-screen">
+    <div class="final-card">
+
+      <div class="final-top-badge">🏁 MISSION DEBRIEFING</div>
+      <div class="final-icon">🎓</div>
+      <h1 class="final-title">CONGRATULATIONS, AGENT!</h1>
+      <p class="final-subtitle">You have completed all DBMS Missions at Nexus University.</p>
+
+      <!-- Stats grid -->
+      <div class="final-stats-grid">
+        <div class="final-stat-card">
+          <div class="stat-icon">⚡</div>
+          <div class="stat-val" id="final-xp">0</div>
+          <div class="stat-label">XP EARNED</div>
+        </div>
+        <div class="final-stat-card">
+          <div class="stat-icon">🏆</div>
+          <div class="stat-val" id="final-level">0</div>
+          <div class="stat-label">LEVEL</div>
+        </div>
+        <div class="final-stat-card">
+          <div class="stat-icon">🎖️</div>
+          <div class="stat-val" id="final-badges">0</div>
+          <div class="stat-label">BADGES</div>
+        </div>
+        <div class="final-stat-card">
+          <div class="stat-icon">🔥</div>
+          <div class="stat-val" id="final-streak">0</div>
+          <div class="stat-label">STREAK</div>
+        </div>
+      </div>
+
+      <!-- Rank banner -->
+      <div class="rank-banner">
+        <div class="rank-icon" id="rank-icon">🌱</div>
+        <div>
+          <div class="rank-label">AGENT RANK CERTIFIED</div>
+          <div class="rank-name" id="final-rank">Rookie Agent</div>
+        </div>
+      </div>
+
+      <!-- Mission summary -->
+      <div class="mission-summary" id="mission-summary"></div>
+
+      <p class="final-message" id="final-message">
+        The Database Defense Academy officially certifies you. All zones secured, all anomalies normalized. Mission complete.
+      </p>
+
+      <!-- Buttons -->
+      <div class="final-buttons">
+        <button class="final-btn ghost" onclick="goToMap()">🗺️ Campus Map</button>
+        <button class="final-btn ghost" onclick="goToDashboard()">🏠 Dashboard</button>
+        <button class="final-btn primary" onclick="shareResult()">📋 Copy Result</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="final.js"></script>
+</body>
+</html>

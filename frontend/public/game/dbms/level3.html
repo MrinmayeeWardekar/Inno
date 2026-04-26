@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Level 3 – Foreign Affairs | DBMS Quest</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="level-shared.css">
+  <style>
+    /* Level 3 accent: orange/amber */
+    .hud-level { border-color: rgba(251,146,60,0.5); color: #fb923c; }
+    .intro-title { color: #fb923c; text-shadow: 0 0 28px rgba(251,146,60,0.7); }
+    .q-title { color: #fb923c; }
+    .xp-display { color: #fb923c; }
+    .btn-start { background: linear-gradient(90deg, #f97316, #ea580c); box-shadow: 0 0 28px rgba(249,115,22,0.6); }
+    .btn-confirm { background: linear-gradient(90deg, #f97316, #ea580c); }
+    .choice-btn.selected { border-color: #f97316; background: rgba(249,115,22,0.15); color: #fb923c; box-shadow: 0 0 12px rgba(249,115,22,0.3); }
+    .option-btn.selected { border-color: #f97316; background: rgba(249,115,22,0.12); }
+    #progress-fill { background: linear-gradient(90deg, #f97316, #fbbf24); }
+    .complete-title { color: #fb923c; text-shadow: 0 0 20px rgba(251,146,60,0.6); }
+    .intro-inner::before { background: linear-gradient(90deg, transparent, #f97316, transparent); }
+    .complete-inner::before { background: linear-gradient(90deg, transparent, #f97316, transparent); }
+
+    /* Relationship diagram */
+    .rel-diagram {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 20px;
+      justify-content: center;
+    }
+    .rel-table-box {
+      background: rgba(2,6,23,0.8);
+      border: 1px solid rgba(34,211,238,0.25);
+      border-radius: 12px;
+      padding: 12px 16px;
+      min-width: 180px;
+      flex: 1;
+    }
+    .rel-table-box.fk-table { border-color: rgba(249,115,22,0.4); }
+    .rel-table-title {
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #22d3ee;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .rel-table-box.fk-table .rel-table-title { color: #fb923c; }
+    .rel-col {
+      font-size: 12px;
+      color: #d1d5db;
+      padding: 4px 8px;
+      border-radius: 6px;
+      margin-bottom: 3px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .rel-col.pk { background: rgba(34,211,238,0.1); color: #22d3ee; }
+    .rel-col.fk { background: rgba(249,115,22,0.1); color: #fb923c; }
+    .col-tag {
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-weight: 700;
+    }
+    .col-tag.pk { background: rgba(34,211,238,0.2); color: #22d3ee; }
+    .col-tag.fk { background: rgba(249,115,22,0.2); color: #fb923c; }
+    .rel-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      color: #9ca3af;
+      padding: 0 4px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ INTRO SCREEN ══ -->
+<div id="intro-screen" class="screen active">
+  <div class="intro-screen-wrap">
+    <div class="intro-inner">
+      <div class="mission-badge">🎯 MISSION 3 / 4</div>
+      <h1 class="intro-title">FOREIGN<br>AFFAIRS</h1>
+      <p class="intro-sub">Level 3 — Relations Wing</p>
+      <div class="intro-story">
+        <p>🚨 <strong>ALERT:</strong> Tables across the campus database have become disconnected! Foreign Key references are broken. Your task is to identify the correct Foreign Key relationships that link tables together and restore database integrity.</p>
+      </div>
+      <div class="intro-rules">
+        <div class="rule-item"><span class="rule-icon">🔗</span><span>Identify Foreign Key relationships between tables</span></div>
+        <div class="rule-item"><span class="rule-icon">⚡</span><span>5 questions — each worth 20 XP</span></div>
+        <div class="rule-item"><span class="rule-icon">💡</span><span>Study the table diagrams carefully</span></div>
+        <div class="rule-item"><span class="rule-icon">✅</span><span>Choose the best answer and click Confirm</span></div>
+      </div>
+      <button class="btn-start" onclick="startLevel()">▶ START MISSION</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ QUIZ SCREEN ══ -->
+<div id="quiz-screen" class="screen">
+  <div class="hud">
+    <div class="hud-left">
+      <button class="hud-btn" onclick="goHome()">🏠 Home</button>
+      <button class="hud-btn" onclick="goMap()">🗺️ Map</button>
+      <div class="hud-level">LEVEL 3</div>
+    </div>
+    <div class="hud-center">Foreign Affairs</div>
+    <div class="hud-right">
+      <div class="xp-display">⚡ <span id="xp-count">0</span> XP</div>
+      <div class="progress-text"><span id="q-current">1</span> / <span id="q-total">5</span></div>
+    </div>
+  </div>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-fill" id="progress-fill"></div>
+  </div>
+
+  <div class="question-area">
+    <div class="question-card">
+      <div class="q-header">
+        <div class="q-badge">Q <span id="q-num">1</span></div>
+        <div class="q-title" id="q-topic">Foreign Key Relationship</div>
+      </div>
+
+      <!-- Relationship diagram area -->
+      <div id="rel-diagram-area"></div>
+
+      <p class="q-instruction" id="q-text">Choose the correct answer:</p>
+      <div id="options-area"></div>
+      <div class="feedback-box" id="feedback-box"></div>
+      <div class="nav-buttons">
+        <div class="nav-left">
+          <button class="btn-hint" onclick="showHint()">💡 HINT</button>
+        </div>
+        <div class="nav-right">
+          <button class="btn-confirm" id="btn-confirm" onclick="confirmAnswer()" disabled>✔ CONFIRM</button>
+          <button class="btn-next" id="btn-next" onclick="nextQuestion()">NEXT ▶</button>
+        </div>
+      </div>
+      <div class="hint-box hidden" id="hint-box"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ COMPLETE SCREEN ══ -->
+<div id="complete-screen" class="screen">
+  <div class="complete-wrap">
+    <div class="complete-inner">
+      <div class="trophy">🏆</div>
+      <div class="complete-title">MISSION COMPLETE!</div>
+      <div class="mission-name">Foreign Affairs</div>
+      <div class="xp-gained" id="final-xp">+100 XP</div>
+      <div class="xp-total" id="final-xp-label">100 XP Gained</div>
+      <div class="zone-info">
+        <div class="zone-emoji">🔗</div>
+        <div>All tables are now linked! Foreign key relationships restored across the database.</div>
+      </div>
+      <div class="score-summary" id="score-summary"></div>
+      <div class="bottom-buttons">
+        <button class="campus-map" onclick="goHome()">🏠 HOME</button>
+        <button class="campus-map" onclick="goMap()">🗺️ MAP</button>
+        <button class="next-mission" onclick="goNextLevel()">NEXT MISSION ➡️</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="level3.js"></script>
+</body>
+</html>

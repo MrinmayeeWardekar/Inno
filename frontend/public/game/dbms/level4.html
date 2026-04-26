@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Level 4 – Normalization Protocol | DBMS Quest</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="level-shared.css">
+  <style>
+    /* Level 4 accent: green */
+    .hud-level { border-color: rgba(34,197,94,0.5); color: #4ade80; }
+    .intro-title { color: #4ade80; text-shadow: 0 0 28px rgba(34,197,94,0.7); }
+    .q-title { color: #4ade80; }
+    .xp-display { color: #4ade80; }
+    .btn-start { background: linear-gradient(90deg, #22c55e, #16a34a); box-shadow: 0 0 28px rgba(34,197,94,0.6); }
+    .btn-confirm { background: linear-gradient(90deg, #22c55e, #16a34a); }
+    .option-btn.selected { border-color: #22c55e; background: rgba(34,197,94,0.12); color: #4ade80; }
+    #progress-fill { background: linear-gradient(90deg, #22c55e, #84cc16); }
+    .complete-title { color: #4ade80; text-shadow: 0 0 20px rgba(34,197,94,0.6); }
+    .intro-inner::before { background: linear-gradient(90deg, transparent, #22c55e, transparent); }
+    .complete-inner::before { background: linear-gradient(90deg, transparent, #22c55e, transparent); }
+
+    /* Broken table display */
+    .broken-table-section {
+      background: rgba(239,68,68,0.05);
+      border: 1px solid rgba(239,68,68,0.3);
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+    }
+    .broken-label {
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #f87171;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .violation-note {
+      font-size: 12px;
+      color: #fca5a5;
+      background: rgba(239,68,68,0.08);
+      border-radius: 8px;
+      padding: 8px 12px;
+      margin-top: 8px;
+      line-height: 1.5;
+    }
+
+    /* Drag & drop area */
+    .drag-section { margin-bottom: 16px; }
+    .drag-section-title {
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #9ca3af;
+      margin-bottom: 8px;
+    }
+    .attr-bank {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 12px;
+      background: rgba(15,23,42,0.7);
+      border: 1px dashed rgba(148,163,184,0.3);
+      border-radius: 12px;
+      min-height: 52px;
+    }
+    .attr-chip {
+      background: rgba(34,211,238,0.1);
+      border: 1px solid rgba(34,211,238,0.4);
+      color: #22d3ee;
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: grab;
+      transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+      user-select: none;
+    }
+    .attr-chip:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(34,211,238,0.3); }
+    .attr-chip.dragging { opacity: 0.4; }
+    .attr-chip.placed { background: rgba(34,197,94,0.1); border-color: rgba(34,197,94,0.4); color: #4ade80; }
+
+    .drop-tables { display: flex; flex-wrap: wrap; gap: 12px; }
+    .drop-table {
+      flex: 1;
+      min-width: 140px;
+      background: rgba(2,6,23,0.7);
+      border: 2px dashed rgba(148,163,184,0.25);
+      border-radius: 12px;
+      padding: 12px;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .drop-table.drag-over { border-color: #22d3ee; background: rgba(34,211,238,0.05); }
+    .drop-table-title {
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #6b7280;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+    .drop-zone {
+      min-height: 40px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .check-btn {
+      background: linear-gradient(90deg, #22c55e, #16a34a);
+      color: white;
+      border: none;
+      border-radius: 999px;
+      padding: 10px 24px;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      letter-spacing: 0.1em;
+      font-family: inherit;
+      transition: transform 0.18s, box-shadow 0.18s;
+    }
+    .check-btn:hover { transform: translateY(-2px); box-shadow: 0 0 22px rgba(34,197,94,0.6); }
+    .check-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .result-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+    .result-row.ok  { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3); color: #86efac; }
+    .result-row.err { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3); color: #fca5a5; }
+  </style>
+</head>
+<body>
+
+<!-- ══ INTRO SCREEN ══ -->
+<div id="intro-screen" class="screen active">
+  <div class="intro-screen-wrap">
+    <div class="intro-inner">
+      <div class="mission-badge">🎯 MISSION 4 / 4 — FINAL</div>
+      <h1 class="intro-title">NORMALIZATION<br>PROTOCOL</h1>
+      <p class="intro-sub">Level 4 — Schema Repair Bay</p>
+      <div class="intro-story">
+        <p>🚨 <strong>ALERT:</strong> Repeating groups and partial dependencies are corrupting the database! You must normalize the broken tables — applying <strong>1NF</strong> and <strong>2NF</strong> rules — by dragging attributes into the correct table slots to restore clean, efficient data structures.</p>
+      </div>
+      <div class="intro-rules">
+        <div class="rule-item"><span class="rule-icon">📐</span><span>Fix broken tables using 1NF and 2NF rules</span></div>
+        <div class="rule-item"><span class="rule-icon">🖱️</span><span>Drag attributes from the bank into the correct tables</span></div>
+        <div class="rule-item"><span class="rule-icon">⚡</span><span>3 schema repairs — each worth 30 XP</span></div>
+        <div class="rule-item"><span class="rule-icon">✅</span><span>Click Check to verify your arrangement</span></div>
+      </div>
+      <button class="btn-start" onclick="startLevel()">▶ START MISSION</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ QUIZ SCREEN ══ -->
+<div id="quiz-screen" class="screen">
+  <div class="hud">
+    <div class="hud-left">
+      <button class="hud-btn" onclick="goHome()">🏠 Home</button>
+      <button class="hud-btn" onclick="goMap()">🗺️ Map</button>
+      <div class="hud-level">LEVEL 4</div>
+    </div>
+    <div class="hud-center">Normalization Protocol</div>
+    <div class="hud-right">
+      <div class="xp-display">⚡ <span id="xp-count">0</span> XP</div>
+      <div class="progress-text"><span id="q-current">1</span> / <span id="q-total">3</span></div>
+    </div>
+  </div>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-fill" id="progress-fill"></div>
+  </div>
+
+  <div class="question-area">
+    <div class="question-card">
+      <div class="q-header">
+        <div class="q-badge">REPAIR <span id="q-num">1</span></div>
+        <div class="q-title" id="q-violation-title">Violation</div>
+      </div>
+
+      <!-- Broken table -->
+      <div class="broken-table-section" id="broken-table-section"></div>
+
+      <!-- Drag area -->
+      <div class="drag-section">
+        <div class="drag-section-title">📦 Attribute Bank — Drag attributes into the correct tables</div>
+        <div class="attr-bank" id="attr-bank"
+          ondragover="event.preventDefault()"
+          ondrop="dropToBank(event)">
+        </div>
+      </div>
+
+      <div class="drag-section">
+        <div class="drag-section-title">🗂️ Normalized Tables — Drop attributes here</div>
+        <div class="drop-tables" id="drop-tables"></div>
+      </div>
+
+      <div class="feedback-box" id="feedback-box"></div>
+
+      <div class="nav-buttons">
+        <div class="nav-left">
+          <button class="btn-hint" onclick="showHint()">💡 HINT</button>
+          <button class="btn-hint" onclick="resetDrag()" style="border-color:rgba(148,163,184,0.3);color:#9ca3af;">↩ Reset</button>
+        </div>
+        <div class="nav-right">
+          <button class="check-btn" id="btn-check" onclick="checkAnswer()">✔ CHECK</button>
+          <button class="btn-next" id="btn-next" onclick="nextQuestion()">NEXT ▶</button>
+        </div>
+      </div>
+      <div class="hint-box hidden" id="hint-box"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ COMPLETE SCREEN ══ -->
+<div id="complete-screen" class="screen">
+  <div class="complete-wrap">
+    <div class="complete-inner">
+      <div class="trophy">🎓</div>
+      <div class="complete-title">ALL MISSIONS COMPLETE!</div>
+      <div class="mission-name">Normalization Protocol</div>
+      <div class="xp-gained" id="final-xp">+90 XP</div>
+      <div class="xp-total" id="final-xp-label">90 XP Gained</div>
+      <div class="zone-info">
+        <div class="zone-emoji">📐</div>
+        <div>Database fully normalized! All anomalies removed and schema integrity restored.</div>
+      </div>
+      <div class="score-summary" id="score-summary"></div>
+      <div class="bottom-buttons">
+        <button class="campus-map" onclick="goHome()">🏠 HOME</button>
+        <button class="campus-map" onclick="goMap()">🗺️ MAP</button>
+        <button class="next-mission" onclick="goFinal()">🎓 FINAL RESULT</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="level4.js"></script>
+</body>
+</html>

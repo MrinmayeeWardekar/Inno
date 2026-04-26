@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Campus Map – DBMS Quest</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="map.css">
+</head>
+<body>
+
+<div class="map-bg"></div>
+<div class="scan-line"></div>
+
+<div class="map-container">
+
+  <!-- HUD bar -->
+  <header class="map-hud">
+    <button class="hud-back" onclick="goHome()">⬅ HOME</button>
+    <div class="map-hud-center">
+      <span class="map-badge">📍 CAMPUS MAP</span>
+    </div>
+    <div class="hud-stats">
+      <span>⚡ <strong id="hud-xp">0</strong> XP</span>
+      <span>🏆 L<strong id="hud-level">0</strong></span>
+    </div>
+  </header>
+
+  <div class="map-header">
+    <h1 class="map-title">NEXUS UNIVERSITY</h1>
+    <p class="map-sub">Select your next mission to restore the DBMS</p>
+  </div>
+
+  <!-- Progress tracker -->
+  <div class="map-progress-bar">
+    <div class="map-progress-fill" id="map-prog"></div>
+  </div>
+  <p class="map-prog-text" id="map-prog-text">Mission 0 / 4 complete</p>
+
+  <!-- Level cards -->
+  <div class="levels-row" id="levelsRow"></div>
+
+  <!-- Connection path (decorative) -->
+  <div class="path-connector" id="pathConnector"></div>
+
+</div>
+
+<script src="map.js"></script>
+</body>
+</html>
