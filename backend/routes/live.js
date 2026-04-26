@@ -27,7 +27,7 @@ router.post('/start', protect, tutorOnly, async (req, res) => {
     // Find all enrolled students
     const tutorCourses = await Course.find({ tutor: req.user._id }).select('enrolledStudents title');
     const studentIds = [...new Set(tutorCourses.flatMap(c => c.enrolledStudents.map(id => id.toString())))];
-    const students = await User.find({ _id: { $in: studentIds } }).select('name email');
+    const students = await User.find({ _id: { $in: studentIds }, _id: { $ne: req.user._id } }).select('name email');
 
     const sessionTime = new Date().toLocaleString('en-IN', {
       dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Kolkata'
