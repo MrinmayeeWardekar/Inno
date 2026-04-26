@@ -95,16 +95,16 @@ export default function LiveSessions() {
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 20 }}>
             {sessions.map(session => (
-              <div key={session._id} style={{ background: 'rgba(14,11,26,0.8)', border: `1.5px solid ${session.isLive ? 'rgba(255,80,80,0.4)' : 'rgba(255,255,255,0.06)'}`, borderRadius: 22, overflow: 'hidden', position: 'relative', transition: 'all 0.25s' }}
-                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = session.isLive ? '0 16px 48px rgba(255,80,80,0.15)' : '0 16px 48px rgba(123,94,167,0.1)'; }}
+              <div key={session._id} style={{ background: 'rgba(14,11,26,0.8)', border: `1.5px solid ${session.status === 'live' ? 'rgba(255,80,80,0.4)' : 'rgba(255,255,255,0.06)'}`, borderRadius: 22, overflow: 'hidden', position: 'relative', transition: 'all 0.25s' }}
+                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = session.status === 'live' ? '0 16px 48px rgba(255,80,80,0.15)' : '0 16px 48px rgba(123,94,167,0.1)'; }}
                 onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}>
-                {session.isLive && (
+                {session.status === 'live' && (
                   <div style={{ position: 'absolute', top: 16, right: 16, display: 'flex', alignItems: 'center', gap: 6, padding: '5px 12px', background: 'rgba(220,30,30,0.9)', borderRadius: 99, fontSize: 12, fontWeight: 800, color: 'white', backdropFilter: 'blur(8px)', zIndex: 1 }}>
                     <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'white', display: 'inline-block', animation: 'pulse-glow 1s infinite' }} />
                     LIVE
                   </div>
                 )}
-                <div style={{ height: 140, background: session.isLive ? 'linear-gradient(135deg, rgba(200,30,30,0.25), rgba(232,84,122,0.15))' : 'linear-gradient(135deg, rgba(123,94,167,0.2), rgba(7,5,15,0.8))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 56 }}>
+                <div style={{ height: 140, background: session.status === 'live' ? 'linear-gradient(135deg, rgba(200,30,30,0.25), rgba(232,84,122,0.15))' : 'linear-gradient(135deg, rgba(123,94,167,0.2), rgba(7,5,15,0.8))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 56 }}>
                   🎙️
                 </div>
                 <div style={{ padding: '20px 22px' }}>
@@ -116,7 +116,7 @@ export default function LiveSessions() {
                     <span style={{ fontSize: 13, color: 'var(--text-muted)' }}><strong style={{ color: 'rgba(255,255,255,0.7)' }}>{session.tutor?.name}</strong></span>
                     {session.viewers > 0 && <span style={{ fontSize: 12, color: 'var(--text-dim)', marginLeft: 'auto' }}>👥 {session.viewers}</span>}
                   </div>
-                  {session.isLive ? (
+                  {session.status === 'live' ? (
                     <button onClick={() => joinRoom(session.roomId || session._id)} style={{ width: '100%', padding: '13px', background: 'linear-gradient(135deg, #cc1f1f, #e8547a)', border: 'none', borderRadius: 14, color: 'white', cursor: 'pointer', fontSize: 14, fontWeight: 800, fontFamily: 'var(--font-body)', boxShadow: '0 4px 20px rgba(200,30,30,0.4)', transition: 'all 0.2s' }}
                       onMouseEnter={e => e.target.style.boxShadow = '0 8px 32px rgba(200,30,30,0.5)'}
                       onMouseLeave={e => e.target.style.boxShadow = '0 4px 20px rgba(200,30,30,0.4)'}>

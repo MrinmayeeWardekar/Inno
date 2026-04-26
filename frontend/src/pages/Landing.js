@@ -122,7 +122,7 @@ export default function Landing() {
         <div style={{ textAlign: 'center', maxWidth: 900, padding: '0 24px', position: 'relative', zIndex: 1 }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 16px', background: 'rgba(123,94,167,0.15)', border: '1px solid rgba(123,94,167,0.3)', borderRadius: 99, marginBottom: 32, fontSize: 13, fontWeight: 600, color: 'var(--violet-bright)', animation: 'slide-up 0.6s ease forwards' }}>
             <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#2de08e', display: 'inline-block', animation: 'pulse-glow 2s infinite' }} />
-            Now in Beta · 10,000+ learners already leveling up
+            Now in Beta · Join our growing community of learners
           </div>
 
           <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(48px, 8vw, 96px)', fontWeight: 700, lineHeight: 1.05, letterSpacing: '-2px', marginBottom: 28, animation: 'slide-up 0.6s 0.1s ease forwards', opacity: 0, animationFillMode: 'forwards' }}>
@@ -167,10 +167,10 @@ export default function Landing() {
       {/* STATS */}
       <section style={{ padding: '80px 48px', maxWidth: 1200, margin: '0 auto' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 20 }}>
-          <StatCard value={10000} suffix="+" label="Active Learners" icon="🎓" />
-          <StatCard value={500} suffix="+" label="Expert Tutors" icon="👨‍🏫" />
-          <StatCard value={1200} suffix="+" label="Courses Live" icon="📚" />
-          <StatCard value={98} suffix="%" label="Satisfaction Rate" icon="⭐" />
+          <StatCard value={50} suffix="+" label="Active Learners" icon="🎓" />
+          <StatCard value={10} suffix="+" label="Expert Tutors" icon="👨‍🏫" />
+          <StatCard value={5} suffix="+" label="Courses Live" icon="📚" />
+          <StatCard value={100} suffix="%" label="Satisfaction Rate" icon="⭐" />
         </div>
       </section>
 
@@ -197,29 +197,35 @@ export default function Landing() {
       </section>
 
       {/* COURSE SHOWCASE */}
-      <section style={{ padding: '80px 48px', maxWidth: 1400, margin: '0 auto', overflow: 'hidden' }}>
-        <div style={{ textAlign: 'center', marginBottom: 64 }}>
+      <section style={{ padding: '80px 48px', maxWidth: 1200, margin: '0 auto' }}>
+        <div style={{ textAlign: 'center', marginBottom: 48 }}>
           <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(32px, 5vw, 56px)', fontWeight: 700, letterSpacing: '-1px', marginBottom: 16 }}>
-            Explore <span style={{ background: 'linear-gradient(135deg, #00d4ff, #9d7fd4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>1,200+ courses</span>
+            Real courses by <span style={{ background: 'linear-gradient(135deg, #00d4ff, #9d7fd4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>real students</span>
           </h2>
+          <p style={{ color: 'var(--text-muted)', fontSize: 18, maxWidth: 500, margin: '0 auto' }}>Every course on InnoVenture is created by verified peer tutors — students teaching students.</p>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 20 }}>
-          {courses.map((c, i) => (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
+          {[
+            { emoji: '🎸', title: 'Guitar for Beginners', desc: 'Learn chords, strumming and your first songs', tag: 'Music', color: '#7b5ea7' },
+            { emoji: '💻', title: 'Web Development', desc: 'HTML, CSS, JavaScript from scratch', tag: 'Technology', color: '#e8547a' },
+            { emoji: '🎨', title: 'Digital Design', desc: 'UI/UX fundamentals and design thinking', tag: 'Design', color: '#00d4ff' },
+          ].map((c, i) => (
             <TiltCard key={i} style={{ background: 'rgba(14,11,26,0.8)', border: `1px solid ${c.color}30`, borderRadius: 24, overflow: 'hidden', cursor: 'pointer', transition: 'all 0.3s' }}>
               <div style={{ height: 140, background: `linear-gradient(135deg, ${c.color}30, ${c.color}10)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 64 }}>
                 {c.emoji}
               </div>
               <div style={{ padding: '20px 24px' }}>
-                <span className="badge badge-violet" style={{ marginBottom: 10, display: 'inline-block' }}>{c.tag}</span>
+                <span style={{ padding: '3px 12px', background: `${c.color}20`, color: c.color, borderRadius: 99, fontSize: 11, fontWeight: 700, marginBottom: 10, display: 'inline-block' }}>{c.tag}</span>
                 <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 600, marginBottom: 8, color: 'white' }}>{c.title}</h3>
-                <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 14 }}>by <strong style={{ color: 'rgba(255,255,255,0.7)' }}>{c.tutor}</strong></p>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: 13, color: 'var(--text-dim)' }}>👥 {c.students.toLocaleString()}</span>
-                  <span style={{ color: c.color, fontWeight: 700, fontSize: 14 }}>⭐ {c.rating}</span>
-                </div>
+                <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>{c.desc}</p>
               </div>
             </TiltCard>
           ))}
+        </div>
+        <div style={{ textAlign: 'center', marginTop: 40 }}>
+          <button onClick={() => navigate('/register')} style={{ padding: '14px 36px', background: 'linear-gradient(135deg,#7b5ea7,#e8547a)', border: 'none', borderRadius: 14, color: 'white', cursor: 'pointer', fontSize: 15, fontWeight: 700, fontFamily: 'inherit' }}>
+            Browse All Courses →
+          </button>
         </div>
       </section>
 
