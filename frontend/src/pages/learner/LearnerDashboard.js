@@ -82,7 +82,7 @@ export default function LearnerDashboard() {
     { id: 'leaderboard', icon: '🏆', label: 'Leaderboard' },
     { id: 'progress', icon: '📈', label: 'My Progress' },
     { id: 'profile', icon: '👤', label: 'My Profile' },
-    { id: 'game', icon: '🎮', label: 'DBMS Quest' },
+    { id: 'game', icon: '🎮', label: 'Games' },
   ];
 
   const StatCard = ({ icon, label, value, color, bg, sub }) => (
