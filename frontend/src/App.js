@@ -19,6 +19,7 @@ import CourseDetail from './pages/learner/CourseDetail';
 import LiveSessions from './pages/learner/LiveSessions';
 import LiveRoom from './pages/learner/LiveRoom';
 import SageChat from './pages/learner/SageChat';
+import SageWidget from './components/SageWidget';
 import QuizPage from './pages/learner/QuizPage';
 import SubscriptionPage from './pages/learner/SubscriptionPage';
 import PaymentPage from './pages/learner/PaymentPage';
@@ -158,6 +159,7 @@ export default function App() {
           }}
         />
         <AppRoutes />
+        <SageWidget />
       </BrowserRouter>
     </AuthProvider>
   );
