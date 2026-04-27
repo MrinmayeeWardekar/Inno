@@ -252,7 +252,7 @@ export default function Landing() {
           <span style={{ color: 'white' }}>Inno</span>
           <span style={{ background: 'linear-gradient(135deg, #9d7fd4, #e8547a)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Venture</span>
         </div>
-        <p style={{ color: 'var(--text-dim)', fontSize: 13 }}>© 2025 InnoVenture. Built with 💜 for the next generation of learners.</p>
+        <p style={{ color: 'var(--text-dim)', fontSize: 13 }}>© 2026 InnoVenture. Built with 💜 for the next generation of learners.</p>
       </footer>
 
       <style>{`

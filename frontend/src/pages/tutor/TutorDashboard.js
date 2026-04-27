@@ -131,7 +131,71 @@ export default function TutorDashboard() {
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 32 }}>
               <StatCard icon="📚" label="Total Courses" value={courses.length} color="#9d7fd4" bg="rgba(123,94,167,0.15)" />
-              <StatCard icon="👥" label="Total Students" value={earnings?.totalStudents || 0} color="#00d4ff" bg="rgba(0,212,255,0.12)" />
+              <div onClick={() => setShowStudents(true)} style={{ cursor: 'pointer' }}>
+                <div onClick={() => setShowStudents(true)} style={{ cursor: 'pointer' }}>
+                <StatCard icon="👥" label="Total Students (click to view)" value={earnings?.totalStudents || 0} color="#00d4ff" bg="rgba(0,212,255,0.12)" />
+              </div>
+              {showStudents && (
+                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }} onClick={() => setShowStudents(false)}>
+                  <div style={{ background: '#0e0b1a', border: '1px solid rgba(123,94,167,0.3)', borderRadius: 24, padding: 32, maxWidth: 600, width: '100%', maxHeight: '80vh', overflowY: 'auto' }} onClick={e => e.stopPropagation()}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+                      <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 700, color: 'white' }}>👥 Enrolled Students</h3>
+                      <button onClick={() => setShowStudents(false)} style={{ background: 'rgba(255,255,255,0.06)', border: 'none', color: 'white', cursor: 'pointer', fontSize: 20, padding: '4px 10px', borderRadius: 8 }}>✕</button>
+                    </div>
+                    {students.length === 0 ? (
+                      <div style={{ textAlign: 'center', padding: 40, color: 'rgba(255,255,255,0.4)' }}>
+                        <div style={{ fontSize: 48, marginBottom: 12 }}>👥</div>
+                        <p>No students enrolled yet!</p>
+                      </div>
+                    ) : students.map((s, i) => (
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 0', borderBottom: i < students.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none' }}>
+                        <div style={{ width: 42, height: 42, borderRadius: '50%', background: 'linear-gradient(135deg,#7b5ea7,#e8547a)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 900, color: 'white', flexShrink: 0 }}>{s.name?.[0]?.toUpperCase()}</div>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontWeight: 700, fontSize: 15, color: 'white', marginBottom: 2 }}>{s.name}</div>
+                          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>{s.email}</div>
+                        </div>
+                        <div style={{ textAlign: 'right' }}>
+                          <div style={{ fontSize: 13, color: '#ffd700', fontWeight: 700 }}>{s.xp || 0} XP</div>
+                          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>Lv.{s.level || 1}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              </div>
+
+              {/* Students Modal */}
+              {showStudents && (
+                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }} onClick={() => setShowStudents(false)}>
+                  <div style={{ background: '#0e0b1a', border: '1px solid rgba(123,94,167,0.3)', borderRadius: 24, padding: 32, maxWidth: 600, width: '100%', maxHeight: '80vh', overflowY: 'auto' }} onClick={e => e.stopPropagation()}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+                      <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 700, color: 'white' }}>👥 Enrolled Students</h3>
+                      <button onClick={() => setShowStudents(false)} style={{ background: 'rgba(255,255,255,0.06)', border: 'none', color: 'white', cursor: 'pointer', fontSize: 20, padding: '4px 10px', borderRadius: 8 }}>✕</button>
+                    </div>
+                    {students.length === 0 ? (
+                      <div style={{ textAlign: 'center', padding: 40, color: 'rgba(255,255,255,0.4)' }}>
+                        <div style={{ fontSize: 48, marginBottom: 12 }}>👥</div>
+                        <p>No students enrolled yet!</p>
+                      </div>
+                    ) : students.map((s, i) => (
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 0', borderBottom: i < students.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none' }}>
+                        <div style={{ width: 42, height: 42, borderRadius: '50%', background: 'linear-gradient(135deg,#7b5ea7,#e8547a)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 900, color: 'white', flexShrink: 0 }}>
+                          {s.name?.[0]?.toUpperCase()}
+                        </div>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontWeight: 700, fontSize: 15, color: 'white', marginBottom: 2 }}>{s.name}</div>
+                          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>{s.email}</div>
+                        </div>
+                        <div style={{ textAlign: 'right' }}>
+                          <div style={{ fontSize: 13, color: '#ffd700', fontWeight: 700 }}>{s.xp || 0} XP</div>
+                          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>Lv.{s.level || 1}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
               <StatCard icon="💰" label="Your Earnings" value={`₹${(earnings?.tutorEarnings || 0).toFixed(0)}`} color="#ffd700" bg="rgba(255,215,0,0.1)" />
               <StatCard icon="✅" label="Approved" value={courses.filter(c => c.status === 'approved').length} color="#2de08e" bg="rgba(45,224,142,0.12)" />
             </div>

@@ -4,6 +4,18 @@ import { useAuth } from '../../context/AuthContext';
 import API from '../../api/axios';
 import toast from 'react-hot-toast';
 
+const Modal = ({ title, onClose, children }) => (
+  <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }} onClick={onClose}>
+    <div style={{ background: '#0e0b1a', border: '1px solid rgba(123,94,167,0.3)', borderRadius: 24, padding: 32, maxWidth: 700, width: '100%', maxHeight: '80vh', overflowY: 'auto' }} onClick={e => e.stopPropagation()}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+        <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 700, color: 'white' }}>{title}</h3>
+        <button onClick={onClose} style={{ background: 'rgba(255,255,255,0.06)', border: 'none', color: 'white', cursor: 'pointer', fontSize: 20, padding: '4px 10px', borderRadius: 8 }}>✕</button>
+      </div>
+      {children}
+    </div>
+  </div>
+);
+
 export default function AdminDashboard() {
   const { logout } = useAuth();
   const navigate = useNavigate();
@@ -14,6 +26,7 @@ export default function AdminDashboard() {
   const [allUsers, setAllUsers] = useState([]);
   const [allCourses, setAllCourses] = useState([]);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [modal, setModal] = useState(null); // 'users' | 'tutors' | 'courses' | 'learners' | 'revenue'
 
   const fetchAll = () => {
     API.get('/admin/stats').then(r => setStats(r.data || {})).catch(() => {});
@@ -37,6 +50,9 @@ export default function AdminDashboard() {
 
   const totalRevenue = allCourses.filter(c => c.status === 'approved').reduce((sum, c) => sum + ((c.enrolledStudents?.length || 0) * (c.price || 0)), 0);
   const platformEarnings = totalRevenue * 0.20;
+  const activeTutors = allUsers.filter(u => u.role === 'tutor' && u.tutorStatus === 'approved');
+  const allLearners = allUsers.filter(u => u.role === 'learner');
+  const liveCourses = allCourses.filter(c => c.status === 'approved');
 
   const nav = [
     { id: 'overview', icon: '📊', label: 'Overview' },
@@ -47,24 +63,127 @@ export default function AdminDashboard() {
     { id: 'profile', icon: '👤', label: 'My Profile' },
   ];
 
-  const StatCard = ({ icon, label, value, color, bg }) => (
-    <div style={{ padding: 24, background: 'rgba(14,11,26,0.6)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 20, display: 'flex', alignItems: 'center', gap: 16, transition: 'all 0.2s' }}
-      onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.borderColor = `${color}40`; }}
-      onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'; }}>
+  const StatCard = ({ icon, label, value, color, bg, onClick }) => (
+    <div onClick={onClick} style={{ padding: 24, background: 'rgba(14,11,26,0.6)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 20, display: 'flex', alignItems: 'center', gap: 16, transition: 'all 0.2s', cursor: onClick ? 'pointer' : 'default' }}
+      onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.borderColor = `${color}40`; if (onClick) e.currentTarget.style.boxShadow = `0 8px 30px ${color}20`; }}
+      onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'; e.currentTarget.style.boxShadow = 'none'; }}>
       <div style={{ width: 52, height: 52, borderRadius: 14, background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, flexShrink: 0 }}>{icon}</div>
-      <div>
+      <div style={{ flex: 1 }}>
         <div style={{ fontSize: 26, fontWeight: 900, fontFamily: 'var(--font-display)', color }}>{value}</div>
         <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>{label}</div>
       </div>
+      {onClick && <span style={{ fontSize: 16, color: 'rgba(255,255,255,0.2)' }}>→</span>}
     </div>
   );
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: '#07060f', color: 'white' }}>
 
+      {/* Modals */}
+      {modal === 'users' && (
+        <Modal title="👥 All Users" onClose={() => setModal(null)}>
+          {allUsers.map((u, i) => (
+            <div key={u._id} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 0', borderBottom: i < allUsers.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none' }}>
+              <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'linear-gradient(135deg,#7b5ea7,#e8547a)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, color: 'white', flexShrink: 0 }}>{u.name?.[0]}</div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontWeight: 700, color: 'white', fontSize: 14 }}>{u.name}</div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>{u.email}</div>
+              </div>
+              <span style={{ padding: '3px 10px', background: u.role === 'admin' ? 'rgba(252,129,129,0.12)' : u.role === 'tutor' ? 'rgba(123,94,167,0.12)' : 'rgba(45,224,142,0.12)', color: u.role === 'admin' ? '#fc8181' : u.role === 'tutor' ? '#9d7fd4' : '#2de08e', borderRadius: 99, fontSize: 11, fontWeight: 700 }}>{u.role}</span>
+              <div style={{ textAlign: 'right', minWidth: 60 }}>
+                <div style={{ color: '#ffd700', fontWeight: 700, fontSize: 13 }}>{u.xp || 0} XP</div>
+                <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: 11 }}>Lv.{u.level || 1}</div>
+              </div>
+            </div>
+          ))}
+        </Modal>
+      )}
+
+      {modal === 'tutors' && (
+        <Modal title="👨‍🏫 Active Tutors" onClose={() => setModal(null)}>
+          {activeTutors.length === 0 ? <p style={{ color: 'rgba(255,255,255,0.4)', textAlign: 'center', padding: 40 }}>No approved tutors yet</p> : activeTutors.map((u, i) => (
+            <div key={u._id} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 0', borderBottom: i < activeTutors.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none' }}>
+              <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'linear-gradient(135deg,#7b5ea7,#e8547a)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, color: 'white', flexShrink: 0 }}>{u.name?.[0]}</div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontWeight: 700, color: 'white', fontSize: 14 }}>{u.name}</div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>{u.email}</div>
+              </div>
+              <span style={{ padding: '3px 10px', background: 'rgba(45,224,142,0.12)', color: '#2de08e', borderRadius: 99, fontSize: 11, fontWeight: 700 }}>✅ Approved</span>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>Joined {new Date(u.createdAt).toLocaleDateString()}</div>
+            </div>
+          ))}
+        </Modal>
+      )}
+
+      {modal === 'courses' && (
+        <Modal title="📚 Live Courses" onClose={() => setModal(null)}>
+          {liveCourses.length === 0 ? <p style={{ color: 'rgba(255,255,255,0.4)', textAlign: 'center', padding: 40 }}>No live courses yet</p> : liveCourses.map((c, i) => (
+            <div key={c._id} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 0', borderBottom: i < liveCourses.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none' }}>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontWeight: 700, color: 'white', fontSize: 14, marginBottom: 4 }}>{c.title}</div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>by {c.tutor?.name} · {c.category}</div>
+              </div>
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ color: c.price === 0 ? '#2de08e' : '#ffd700', fontWeight: 700, fontSize: 13 }}>{c.price === 0 ? 'Free' : `₹${c.price}`}</div>
+                <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: 11 }}>👥 {c.enrolledStudents?.length || 0} students</div>
+              </div>
+            </div>
+          ))}
+        </Modal>
+      )}
+
+      {modal === 'learners' && (
+        <Modal title="🎓 All Learners" onClose={() => setModal(null)}>
+          {allLearners.length === 0 ? <p style={{ color: 'rgba(255,255,255,0.4)', textAlign: 'center', padding: 40 }}>No learners yet</p> : allLearners.map((u, i) => (
+            <div key={u._id} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 0', borderBottom: i < allLearners.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none' }}>
+              <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'linear-gradient(135deg,#2de08e,#00d4ff)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, color: 'white', flexShrink: 0 }}>{u.name?.[0]}</div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontWeight: 700, color: 'white', fontSize: 14 }}>{u.name}</div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>{u.email}</div>
+              </div>
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ color: '#ffd700', fontWeight: 700, fontSize: 13 }}>{u.xp || 0} XP</div>
+                <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: 11 }}>Lv.{u.level || 1}</div>
+              </div>
+            </div>
+          ))}
+        </Modal>
+      )}
+
+      {modal === 'revenue' && (
+        <Modal title="💰 Platform Revenue" onClose={() => setModal(null)}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 14, marginBottom: 24 }}>
+            {[
+              { label: 'Total Revenue', value: `₹${totalRevenue.toFixed(0)}`, color: '#9d7fd4' },
+              { label: 'Platform (20%)', value: `₹${platformEarnings.toFixed(0)}`, color: '#ffd700' },
+              { label: 'Tutor Payouts', value: `₹${(totalRevenue * 0.8).toFixed(0)}`, color: '#2de08e' },
+            ].map((s, i) => (
+              <div key={i} style={{ padding: 16, background: 'rgba(255,255,255,0.04)', borderRadius: 14, textAlign: 'center' }}>
+                <div style={{ fontSize: 20, fontWeight: 800, color: s.color, fontFamily: 'var(--font-display)' }}>{s.value}</div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>{s.label}</div>
+              </div>
+            ))}
+          </div>
+          {liveCourses.map((c, i) => {
+            const rev = (c.enrolledStudents?.length || 0) * (c.price || 0);
+            return (
+              <div key={c._id} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 0', borderBottom: i < liveCourses.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none' }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 700, color: 'white', fontSize: 14 }}>{c.title}</div>
+                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>by {c.tutor?.name} · {c.enrolledStudents?.length || 0} students</div>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ color: '#2de08e', fontWeight: 700, fontSize: 13 }}>₹{rev.toFixed(0)}</div>
+                  <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: 11 }}>Platform: ₹{(rev * 0.2).toFixed(0)}</div>
+                </div>
+              </div>
+            );
+          })}
+        </Modal>
+      )}
+
       {/* Sidebar */}
       <aside style={{ width: sidebarCollapsed ? 72 : 260, background: 'rgba(7,5,15,0.95)', borderRight: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', padding: '24px 0', transition: 'width 0.3s ease', position: 'fixed', top: 0, left: 0, bottom: 0, backdropFilter: 'blur(20px)', zIndex: 50 }}>
-        {/* Logo */}
         <div style={{ padding: '0 20px', marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           {!sidebarCollapsed && (
             <div style={{ fontFamily: 'var(--font-display)', fontSize: 20, fontWeight: 700, cursor: 'pointer' }} onClick={() => navigate('/')}>
@@ -83,18 +202,15 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {/* Nav */}
         <nav style={{ flex: 1, padding: '0 12px' }}>
           {nav.map(item => (
             <div key={item.id}
-             onClick={() => item.id === 'profile' ? navigate('/settings') : setTab(item.id)}
+              onClick={() => item.id === 'profile' ? navigate('/settings') : setTab(item.id)}
               style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 12, marginBottom: 4, cursor: 'pointer', transition: 'all 0.15s', background: tab === item.id && item.id !== 'profile' ? 'rgba(123,94,167,0.2)' : 'transparent', color: tab === item.id && item.id !== 'profile' ? '#9d7fd4' : 'rgba(255,255,255,0.4)', border: `1px solid ${tab === item.id && item.id !== 'profile' ? 'rgba(123,94,167,0.3)' : 'transparent'}` }}
               onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.color = 'white'; }}
               onMouseLeave={e => { if (tab !== item.id) { e.currentTarget.style.background = tab === item.id ? 'rgba(123,94,167,0.2)' : 'transparent'; e.currentTarget.style.color = tab === item.id ? '#9d7fd4' : 'rgba(255,255,255,0.4)'; } }}>
               <span style={{ fontSize: 18, flexShrink: 0 }}>{item.icon}</span>
-              {!sidebarCollapsed && (
-                <span style={{ fontSize: 14, fontWeight: 600, whiteSpace: 'nowrap', flex: 1 }}>{item.label}</span>
-              )}
+              {!sidebarCollapsed && <span style={{ fontSize: 14, fontWeight: 600, whiteSpace: 'nowrap', flex: 1 }}>{item.label}</span>}
               {!sidebarCollapsed && item.badge > 0 && (
                 <span style={{ background: '#e8547a', color: 'white', borderRadius: 10, fontSize: 11, fontWeight: 700, padding: '2px 7px', flexShrink: 0 }}>{item.badge}</span>
               )}
@@ -102,7 +218,6 @@ export default function AdminDashboard() {
           ))}
         </nav>
 
-        {/* Logout */}
         <div style={{ padding: '16px 12px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
           <button onClick={() => { logout(); navigate('/'); }} style={{ width: '100%', padding: '10px', background: 'rgba(255,80,80,0.08)', border: '1px solid rgba(255,80,80,0.15)', borderRadius: 10, color: '#ff6060', cursor: 'pointer', fontSize: 13, fontWeight: 600, fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
             <span>🚪</span>{!sidebarCollapsed && 'Logout'}
@@ -121,12 +236,12 @@ export default function AdminDashboard() {
               <p style={{ color: 'rgba(255,255,255,0.4)' }}>Platform overview and management</p>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 32 }}>
-              <StatCard icon="👥" label="Total Users" value={stats.totalUsers || 0} color="#9d7fd4" bg="rgba(123,94,167,0.12)" />
-              <StatCard icon="📚" label="Live Courses" value={stats.totalCourses || 0} color="#00d4ff" bg="rgba(0,212,255,0.12)" />
-              <StatCard icon="👨‍🏫" label="Active Tutors" value={stats.totalTutors || 0} color="#ffd700" bg="rgba(255,215,0,0.1)" />
-              <StatCard icon="💰" label="Platform Revenue" value={`₹${platformEarnings.toFixed(0)}`} color="#2de08e" bg="rgba(45,224,142,0.12)" />
-              <StatCard icon="🎓" label="Learners" value={stats.totalLearners || 0} color="#e8547a" bg="rgba(232,84,122,0.12)" />
-              <StatCard icon="⏳" label="Pending Reviews" value={(pendingTutors.length) + (pendingCourses.length)} color="#f6ad55" bg="rgba(246,173,85,0.12)" />
+              <StatCard icon="👥" label="Total Users" value={stats.totalUsers || 0} color="#9d7fd4" bg="rgba(123,94,167,0.12)" onClick={() => setModal('users')} />
+              <StatCard icon="📚" label="Live Courses" value={stats.totalCourses || 0} color="#00d4ff" bg="rgba(0,212,255,0.12)" onClick={() => setModal('courses')} />
+              <StatCard icon="👨‍🏫" label="Active Tutors" value={stats.totalTutors || 0} color="#ffd700" bg="rgba(255,215,0,0.1)" onClick={() => setModal('tutors')} />
+              <StatCard icon="💰" label="Platform Revenue" value={`₹${platformEarnings.toFixed(0)}`} color="#2de08e" bg="rgba(45,224,142,0.12)" onClick={() => setModal('revenue')} />
+              <StatCard icon="🎓" label="Learners" value={stats.totalLearners || 0} color="#e8547a" bg="rgba(232,84,122,0.12)" onClick={() => setModal('learners')} />
+              <StatCard icon="⏳" label="Pending Reviews" value={(pendingTutors.length) + (pendingCourses.length)} color="#f6ad55" bg="rgba(246,173,85,0.12)" onClick={() => setTab('tutors')} />
             </div>
             {(pendingTutors.length > 0 || pendingCourses.length > 0) && (
               <div style={{ padding: 20, background: 'rgba(246,173,85,0.06)', border: '1px solid rgba(246,173,85,0.2)', borderRadius: 16 }}>
@@ -168,7 +283,7 @@ export default function AdminDashboard() {
                   {allCourses.filter(c => c.status === 'approved').map((c, i) => {
                     const rev = (c.enrolledStudents?.length || 0) * (c.price || 0);
                     return (
-                      <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}
+                      <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)', transition: 'background 0.15s' }}
                         onMouseEnter={e => e.currentTarget.style.background = 'rgba(123,94,167,0.04)'}
                         onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
                         <td style={{ padding: '14px 16px', fontWeight: 700, fontSize: 14, color: 'white' }}>{c.title}</td>
