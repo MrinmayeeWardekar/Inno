@@ -11,10 +11,15 @@ export default function TutorDashboard() {
   const [earnings, setEarnings] = useState(null);
   const [tab, setTab] = useState('overview');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [students, setStudents] = useState([]);
+  const [showStudents, setShowStudents] = useState(false);
 
   const fetchData = () => {
     API.get('/courses/tutor/mycourses').then(r => setCourses(Array.isArray(r.data) ? r.data : [])).catch(() => setCourses([]));
-    API.get('/users/earnings').then(r => setEarnings(r.data)).catch(() => {});
+    API.get('/users/earnings').then(r => {
+      setEarnings(r.data);
+      if (r.data?.studentDetails) setStudents(r.data.studentDetails);
+    }).catch(() => {});
   };
 
   useEffect(() => { fetchData(); }, []);
