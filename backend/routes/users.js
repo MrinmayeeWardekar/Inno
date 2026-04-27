@@ -37,14 +37,16 @@ router.get('/earnings', protect, async (req, res) => {
       totalRevenue += revenue;
       return { title: c.title, price: c.price, students, revenue, tutorEarnings: revenue * 0.8 };
     });
+    const allStudentIds = [...new Set(courses.flatMap(c => c.enrolledStudents.map(id => id.toString())))];
+    const studentDetails = await User.find({ _id: { $in: allStudentIds } }).select('name email xp level');
     res.json({
       totalRevenue, tutorEarnings: totalRevenue * 0.8, platformCut: totalRevenue * 0.2,
-      totalStudents: courses.reduce((s, c) => s + (c.enrolledStudents?.length || 0), 0),
-      courses: courseBreakdown
+      totalStudents: allStudentIds.length,
+      courses: courseBreakdown,
+      studentDetails
     });
   } catch (err) { res.status(500).json({ message: err.message }); }
 });
-
 // GET public tutor profile
 router.get('/tutor/:id', async (req, res) => {
   try {

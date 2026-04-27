@@ -42,15 +42,16 @@ export default function TutorDashboard() {
     { id: 'profile', icon: '👤', label: 'My Profile' },
   ];
 
-  const StatCard = ({ icon, label, value, color, bg }) => (
-    <div style={{ padding: 24, background: 'rgba(14,11,26,0.6)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 20, display: 'flex', alignItems: 'center', gap: 16, transition: 'all 0.2s' }}
-      onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.borderColor = `${color}40`; }}
-      onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'; }}>
+  const StatCard = ({ icon, label, value, color, bg, onClick }) => (
+    <div onClick={onClick} style={{ padding: 24, background: 'rgba(14,11,26,0.6)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 20, display: 'flex', alignItems: 'center', gap: 16, transition: 'all 0.2s', cursor: onClick ? 'pointer' : 'default' }}
+      onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.borderColor = `${color}40`; if (onClick) e.currentTarget.style.boxShadow = `0 8px 30px ${color}20`; }}
+      onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'; e.currentTarget.style.boxShadow = 'none'; }}>
       <div style={{ width: 52, height: 52, borderRadius: 14, background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, flexShrink: 0 }}>{icon}</div>
-      <div>
+      <div style={{ flex: 1 }}>
         <div style={{ fontSize: 26, fontWeight: 900, fontFamily: 'var(--font-display)', color }}>{value}</div>
         <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>{label}</div>
       </div>
+      {onClick && <span style={{ fontSize: 16, color: 'rgba(255,255,255,0.2)' }}>→</span>}
     </div>
   );
 
