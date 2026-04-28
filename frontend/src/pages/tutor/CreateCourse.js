@@ -12,7 +12,7 @@ export default function CreateCourse() {
   const [form, setForm] = useState({ title: '', description: '', category: 'Technology', price: 0, tags: '' });
   const [thumbnail, setThumbnail] = useState(null);
   const [lessons, setLessons] = useState([]);
-  const [lessonForm, setLessonForm] = useState({ title: '', type: 'video', duration: '' });
+  const [lessonForm, setLessonForm] = useState({ title: '', type: 'video', duration: '', youtubeUrl: '' });
   const [lessonVideo, setLessonVideo] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -32,10 +32,12 @@ export default function CreateCourse() {
     e.preventDefault(); if (!courseId) return; setLoading(true);
     try {
       const fd = new FormData();
-      fd.append('title', lessonForm.title); fd.append('type', lessonForm.type); fd.append('duration', lessonForm.duration || 0);
-      if (lessonVideo) fd.append('video', lessonVideo);
+      fd.append('title', lessonForm.title);
+      fd.append('type', lessonForm.type);
+      fd.append('duration', lessonForm.duration || 0);
+      fd.append('content', lessonForm.youtubeUrl || '');
       const { data } = await API.post(`/courses/${courseId}/lessons`, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
-      setLessons(data.lessons || []); setLessonForm({ title: '', type: 'video', duration: '' }); setLessonVideo(null);
+      setLessons(data.lessons || []); setLessonForm({ title: '', type: 'video', duration: '', youtubeUrl: '' });
       toast.success('Lesson added! ✅');
     } catch { toast.error('Failed to add lesson'); }
     setLoading(false);
@@ -124,9 +126,29 @@ export default function CreateCourse() {
                 </div>
                 {lessonForm.type === 'video' && (
                   <div>
-                    <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--text-dim)', marginBottom: 8, letterSpacing: 1, textTransform: 'uppercase' }}>Upload Video (MP4, max 500MB)</label>
-                    <input style={{ ...inp, cursor: 'pointer' }} type="file" accept="video/*" onChange={e => setLessonVideo(e.target.files[0])} />
-                    {lessonVideo && <div style={{ marginTop: 8, fontSize: 12, color: 'var(--green)' }}>✅ {lessonVideo.name} ({(lessonVideo.size / 1024 / 1024).toFixed(1)} MB)</div>}
+                    <div style={{ padding: '14px 18px', background: 'rgba(0,212,255,0.06)', border: '1px solid rgba(0,212,255,0.15)', borderRadius: 14, marginBottom: 16 }}>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: '#00d4ff', marginBottom: 8 }}>💡 How to add your video</div>
+                      <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', lineHeight: 1.8 }}>
+                        <strong style={{ color: 'white' }}>Step 1:</strong> Go to <a href="https://youtube.com" target="_blank" rel="noreferrer" style={{ color: '#00d4ff' }}>youtube.com</a> and sign in<br/>
+                        <strong style={{ color: 'white' }}>Step 2:</strong> Click the camera icon (top right) → Upload video<br/>
+                        <strong style={{ color: 'white' }}>Step 3:</strong> Select your video file and add a title<br/>
+                        <strong style={{ color: 'white' }}>Step 4:</strong> Under Visibility → select <strong style={{ color: '#2de08e' }}>Unlisted</strong> (only people with link can see)<br/>
+                        <strong style={{ color: 'white' }}>Step 5:</strong> Click Save → wait for processing → click Share → copy link<br/>
+                        <strong style={{ color: 'white' }}>Step 6:</strong> Paste the link below ↓
+                      </div>
+                      <a href="https://support.google.com/youtube/answer/57407" target="_blank" rel="noreferrer" style={{ display: 'inline-block', marginTop: 10, fontSize: 12, color: '#00d4ff', textDecoration: 'underline' }}>📖 See YouTube's official upload guide →</a>
+                    </div>
+                    <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--text-dim)', marginBottom: 8, letterSpacing: 1, textTransform: 'uppercase' }}>YouTube Video URL *</label>
+                    <input style={inp} placeholder="https://www.youtube.com/watch?v=..." value={lessonForm.youtubeUrl || ''} onChange={e => setLessonForm({ ...lessonForm, youtubeUrl: e.target.value })} onFocus={focus} onBlur={blur} />
+                    {lessonForm.youtubeUrl && (
+                      <div style={{ marginTop: 12, borderRadius: 12, overflow: 'hidden', aspectRatio: '16/9' }}>
+                        <iframe width="100%" height="100%"
+                          src={lessonForm.youtubeUrl.replace('watch?v=', 'embed/').replace('youtu.be/', 'youtube.com/embed/')}
+                          title="Preview" frameBorder="0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen style={{ display: 'block' }} />
+                      </div>
+                    )}
                   </div>
                 )}
                 <button type="submit" disabled={loading} style={{ padding: '13px', background: loading ? 'rgba(123,94,167,0.4)' : 'linear-gradient(135deg,#7b5ea7,#9b8cff)', border: 'none', borderRadius: 12, color: 'white', fontSize: 14, fontWeight: 700, cursor: loading ? 'wait' : 'pointer', fontFamily: 'var(--font-body)' }}>
