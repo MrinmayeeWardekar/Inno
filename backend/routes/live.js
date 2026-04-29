@@ -27,13 +27,8 @@ router.post('/start', protect, tutorOnly, async (req, res) => {
     // Find all enrolled students
     const tutorCourses = await Course.find({ tutor: req.user._id }).select('enrolledStudents title');
     const studentIds = [...new Set(tutorCourses.flatMap(c => c.enrolledStudents.map(id => id.toString())))];
-    const students = await User.find({ _id: { $in: studentIds }, _id: { $ne: req.user._id } }).select('name email');
 
-    const sessionTime = new Date().toLocaleString('en-IN', {
-      dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Kolkata'
-    });
-
-    // Socket notification
+    // Socket notification — fire immediately
     req.app.get('io').emit('session-started', {
       sessionId: session._id,
       roomId,
@@ -43,21 +38,35 @@ router.post('/start', protect, tutorOnly, async (req, res) => {
       enrolledStudentIds: studentIds
     });
 
-    // Email every enrolled student
-    let emailsSent = 0;
-    for (const student of students) {
-      try {
-        await sendLiveSessionEmail(
-          student.email, student.name,
-          req.user.name, title || 'Live Session',
-          sessionTime, roomId
-        );
-        emailsSent++;
-      } catch(e) { console.log('Email error:', e.message); }
-    }
-
-    console.log(`Live started by ${req.user.name} — notified ${emailsSent}/${students.length} students`);
+    // RESPOND IMMEDIATELY — don't wait for emails
     res.status(201).json(populated);
+
+    // Send emails in background AFTER response is sent
+    setImmediate(async () => {
+      try {
+        const students = await User.find({ _id: { $in: studentIds }, _id: { $ne: req.user._id } }).select('name email');
+        const sessionTime = new Date().toLocaleString('en-IN', {
+          dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Kolkata'
+        });
+
+        // Send all emails in parallel instead of one by one
+        const results = await Promise.allSettled(
+          students.map(student =>
+            sendLiveSessionEmail(
+              student.email, student.name,
+              req.user.name, title || 'Live Session',
+              sessionTime, roomId
+            )
+          )
+        );
+
+        const sent = results.filter(r => r.status === 'fulfilled').length;
+        console.log(`Live started by ${req.user.name} — notified ${sent}/${students.length} students`);
+      } catch (e) {
+        console.log('Background email error:', e.message);
+      }
+    });
+
   } catch (err) {
     console.error('Live start error:', err);
     res.status(500).json({ message: err.message });
@@ -83,30 +92,34 @@ router.put('/:id/end', protect, async (req, res) => {
 
     if (!session) return res.status(404).json({ message: 'Session not found' });
 
-    // Emit session-ended to all viewers in the room
     req.app.get('io').to(session.roomId).emit('session-ended', { sessionId: req.params.id });
-    // Also emit globally so learner dashboard updates
     req.app.get('io').emit('session-ended', { sessionId: req.params.id });
 
-    // Send "session ended" email to enrolled students
-    try {
-      const tutorCourses = await Course.find({ tutor: session.tutor._id }).select('enrolledStudents');
-      const studentIds = [...new Set(tutorCourses.flatMap(c => c.enrolledStudents.map(id => id.toString())))];
-      const students = await User.find({ _id: { $in: studentIds } }).select('name email');
-
-      for (const student of students) {
-        try {
-          if (sendLiveSessionEndedEmail) {
-            await sendLiveSessionEndedEmail(
-              student.email, student.name,
-              session.tutor.name, session.title
-            );
-          }
-        } catch(e) { console.log('End email error:', e.message); }
-      }
-    } catch(e) { console.log('End session email error:', e.message); }
-
+    // Respond immediately
     res.json(session);
+
+    // End emails in background
+    setImmediate(async () => {
+      try {
+        const tutorCourses = await Course.find({ tutor: session.tutor._id }).select('enrolledStudents');
+        const studentIds = [...new Set(tutorCourses.flatMap(c => c.enrolledStudents.map(id => id.toString())))];
+        const students = await User.find({ _id: { $in: studentIds } }).select('name email');
+
+        if (sendLiveSessionEndedEmail) {
+          await Promise.allSettled(
+            students.map(student =>
+              sendLiveSessionEndedEmail(
+                student.email, student.name,
+                session.tutor.name, session.title
+              )
+            )
+          );
+        }
+      } catch (e) {
+        console.log('End session background email error:', e.message);
+      }
+    });
+
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
