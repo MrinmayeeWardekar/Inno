@@ -83,17 +83,14 @@ export default function TutorLive() {
       await peerRefs.current[from]?.addIceCandidate(candidate);
     });
 
-    const handleUnload = () => {
+    return () => {
       if (sessionId) {
         navigator.sendBeacon(
           'https://innoventure-backend.onrender.com/api/live/' + sessionId + '/end',
           JSON.stringify({})
         );
       }
-    };
-    window.addEventListener('beforeunload', handleUnload);
-    return () => {
-      window.removeEventListener('beforeunload', handleUnload);
+      socketRef.current?.disconnect();
       socketRef.current?.disconnect();
       clearInterval(timerRef.current);
       streamRef.current?.getTracks().forEach(t => t.stop());
