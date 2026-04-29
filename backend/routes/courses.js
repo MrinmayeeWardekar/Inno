@@ -62,11 +62,18 @@ router.post('/', protect, tutorOnly, upload.single('thumbnail'), async (req, res
       tutor: req.user._id,
       thumbnail: req.file ? `/uploads/thumbnails/${req.file.filename}` : ''
     });
-    try {
-      const { sendAdminNewCourseEmail } = require('../services/emailService');
-      await sendAdminNewCourseEmail(process.env.GMAIL_USER, req.user.name, title);
-    } catch(e) { console.log('Email error:', e.message); }
+
+    // Respond immediately
     res.status(201).json(course);
+
+    // Email admin in background
+    setImmediate(async () => {
+      try {
+        const { sendAdminNewCourseEmail } = require('../services/emailService');
+        await sendAdminNewCourseEmail(process.env.GMAIL_USER, req.user.name, title);
+      } catch(e) { console.log('Email error:', e.message); }
+    });
+
   } catch (err) { res.status(500).json({ message: err.message }); }
 });
 
@@ -97,6 +104,7 @@ router.post('/:id/enroll', protect, async (req, res) => {
     if (!course) return res.status(404).json({ message: 'Course not found' });
     if (course.enrolledStudents.includes(req.user._id))
       return res.status(400).json({ message: 'Already enrolled' });
+
     course.enrolledStudents.push(req.user._id);
     await course.save();
     await User.findByIdAndUpdate(req.user._id, {
@@ -104,12 +112,21 @@ router.post('/:id/enroll', protect, async (req, res) => {
       $inc: { xp: 50 }
     });
     await Progress.create({ user: req.user._id, course: course._id });
-    try { await sendEnrollmentEmail(req.user.email, req.user.name, course.title, course.tutor?.name); } catch(e) { console.log('Email error:', e.message); }
-    try {
-      const totalEnrollments = course.enrolledStudents.length;
-      await sendNewEnrollmentToTutorEmail(course.tutor.email, course.tutor.name, req.user.name, course.title, totalEnrollments);
-    } catch(e) { console.log('Email error:', e.message); }
+
+    // Respond immediately
     res.json({ message: 'Enrolled successfully' });
+
+    // Emails in background
+    setImmediate(async () => {
+      try {
+        await sendEnrollmentEmail(req.user.email, req.user.name, course.title, course.tutor?.name);
+      } catch(e) { console.log('Enrollment email error:', e.message); }
+      try {
+        const totalEnrollments = course.enrolledStudents.length;
+        await sendNewEnrollmentToTutorEmail(course.tutor.email, course.tutor.name, req.user.name, course.title, totalEnrollments);
+      } catch(e) { console.log('Tutor email error:', e.message); }
+    });
+
   } catch (err) { res.status(500).json({ message: err.message }); }
 });
 

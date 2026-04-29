@@ -34,12 +34,13 @@ passport.use(new GoogleStrategy({
         googleId: profile.id,
         avatar: profile.photos[0]?.value
       });
-      // Welcome email
-      try { await sendWelcomeEmail(user.email, user.name, role); } catch(e) { console.log('Email error:', e.message); }
-      // Notify admin if new tutor applied
-      if (role === 'tutor') {
-        try { await sendAdminNewTutorApplicationEmail(process.env.GMAIL_USER, user.name, user.email); } catch(e) { console.log('Email error:', e.message); }
-      }
+      // Emails in background — don't block OAuth callback
+      setImmediate(async () => {
+        try { await sendWelcomeEmail(user.email, user.name, role); } catch(e) { console.log('Email error:', e.message); }
+        if (role === 'tutor') {
+          try { await sendAdminNewTutorApplicationEmail(process.env.GMAIL_USER, user.name, user.email); } catch(e) { console.log('Email error:', e.message); }
+        }
+      });
     }
     return done(null, user);
   } catch (err) {
@@ -66,18 +67,23 @@ router.post('/register', async (req, res) => {
       tutorStatus: role === 'tutor' ? 'pending' : undefined,
       isEmailVerified: true
     });
-    // Welcome email
-    try { await sendWelcomeEmail(email, name, role); } catch(e) { console.log('Email error:', e.message); }
-    // Notify admin if new tutor applied
-    if (role === 'tutor') {
-      try { await sendAdminNewTutorApplicationEmail(process.env.GMAIL_USER, name, email); } catch(e) { console.log('Email error:', e.message); }
-    }
+
+    // Respond immediately
     res.status(201).json({
       _id: user._id, name: user.name, email: user.email,
       role: user.role, xp: user.xp, level: user.level,
       badges: user.badges, tutorStatus: user.tutorStatus,
       token: generateToken(user._id)
     });
+
+    // Emails in background
+    setImmediate(async () => {
+      try { await sendWelcomeEmail(email, name, role); } catch(e) { console.log('Email error:', e.message); }
+      if (role === 'tutor') {
+        try { await sendAdminNewTutorApplicationEmail(process.env.GMAIL_USER, name, email); } catch(e) { console.log('Email error:', e.message); }
+      }
+    });
+
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -129,7 +135,7 @@ router.get('/google/callback',
   }
 );
 
-// Forgot Password
+// Forgot Password — this one MUST await before responding (user needs the email to proceed)
 router.post('/forgot-password', async (req, res) => {
   const { email } = req.body;
   try {
