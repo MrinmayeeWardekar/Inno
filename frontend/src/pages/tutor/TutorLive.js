@@ -91,7 +91,6 @@ export default function TutorLive() {
         );
       }
       socketRef.current?.disconnect();
-      socketRef.current?.disconnect();
       clearInterval(timerRef.current);
       streamRef.current?.getTracks().forEach(t => t.stop());
     };
@@ -110,25 +109,23 @@ export default function TutorLive() {
       
       streamRef.current = mediaStream;
       
-      setCameraReady(true);
-      // Multiple attempts to set video stream
-      const trySetVideo = (attempts) => {
-        if (videoRef.current) {
-          videoRef.current.srcObject = mediaStream;
-          videoRef.current.play().catch(() => {});
-        } else if (attempts > 0) {
-          setTimeout(() => trySetVideo(attempts - 1), 300);
-        }
-      };
-      setTimeout(() => trySetVideo(10), 100);
       toast.dismiss('cam');
       toast.success('Camera ready! Starting live session...');
 
-      // Start session on backend
+      // Start session on backend FIRST
       const { data } = await API.post('/live/start', { title });
       setSessionId(data._id);
       setRoomId(data.roomId);
       setIsLive(true);
+      setCameraReady(true);
+
+      // Now video element exists — attach stream
+      setTimeout(() => {
+        if (videoRef.current) {
+          videoRef.current.srcObject = mediaStream;
+          videoRef.current.play().catch(() => {});
+        }
+      }, 300);
 
       // Join socket room
       socketRef.current.emit('join-room', { 
