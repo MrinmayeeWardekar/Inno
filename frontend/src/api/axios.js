@@ -1,6 +1,9 @@
 import axios from 'axios';
 
-const API = axios.create({ baseURL: 'https://innoventure-backend.onrender.com/api' });
+const API = axios.create({ 
+  baseURL: 'https://innoventure-backend.onrender.com/api',
+  timeout: 30000, // 30 seconds — enough for Render cold start
+});
 
 API.interceptors.request.use((req) => {
   const token = localStorage.getItem('innoventure_token');

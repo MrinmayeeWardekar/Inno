@@ -98,7 +98,7 @@ export default function TutorLive() {
         audio: true,
       });
       streamRef.current = mediaStream;
-      toast.loading('Camera ready — connecting to server...', { id: toastId });
+      toast.loading('Camera ready — waking up server, please wait up to 30s...', { id: toastId });
 
       // Step 2: Start session on backend
       // If Render is slow (cold start), this can take 10-15s — we wait
