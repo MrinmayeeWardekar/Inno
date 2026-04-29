@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import API from '../../api/axios';
@@ -24,36 +24,26 @@ export default function TutorLive() {
   const [duration, setDuration] = useState(0);
   const [chatMessages, setChatMessages] = useState([]);
   const [chatInput, setChatInput] = useState('');
-  const [cameraReady, setCameraReady] = useState(false);
-  const videoRef = useRef(null);
-  const streamRef = useRef(null);
 
-  // This effect runs whenever cameraReady becomes true
-  // and keeps trying to attach stream to video element
-  useEffect(() => {
-    if (cameraReady && streamRef.current) {
-      const interval = setInterval(() => {
-        if (videoRef.current && !videoRef.current.srcObject) {
-          videoRef.current.srcObject = streamRef.current;
-          videoRef.current.play().catch(() => {});
-        }
-        if (videoRef.current?.srcObject) {
-          clearInterval(interval);
-        }
-      }, 200);
-      return () => clearInterval(interval);
-    }
-  }, [cameraReady]);
+  const streamRef = useRef(null);
   const peerRefs = useRef({});
   const socketRef = useRef(null);
   const timerRef = useRef(null);
+  const sessionIdRef = useRef(null); // for cleanup closure
+
+  // FIXED: callback ref — runs the moment the video element mounts in DOM
+  const videoCallbackRef = useCallback((node) => {
+    if (node && streamRef.current) {
+      node.srcObject = streamRef.current;
+      node.play().catch(() => {});
+    }
+  }, []);
 
   useEffect(() => {
     socketRef.current = io(SOCKET_URL, { transports: ['websocket', 'polling'] });
 
     socketRef.current.on('connect', () => console.log('Socket connected'));
-    socketRef.current.on('connect_error', (e) => console.log('Socket error:', e));
-
+    socketRef.current.on('connect_error', (e) => console.error('Socket error:', e));
     socketRef.current.on('viewerCount', count => setViewers(count));
 
     socketRef.current.on('chat-message', ({ message, userName }) => {
@@ -84,9 +74,9 @@ export default function TutorLive() {
     });
 
     return () => {
-      if (sessionId) {
+      if (sessionIdRef.current) {
         navigator.sendBeacon(
-          'https://innoventure-backend.onrender.com/api/live/' + sessionId + '/end',
+          `${SOCKET_URL}/api/live/${sessionIdRef.current}/end`,
           JSON.stringify({})
         );
       }
@@ -98,54 +88,62 @@ export default function TutorLive() {
 
   const startLive = async () => {
     if (!title.trim()) return toast.error('Enter a session title');
-    try {
-      toast.loading('Accessing camera...', { id: 'cam' });
-      
-      // Get camera/mic stream
-      const mediaStream = await navigator.mediaDevices.getUserMedia({ 
-        video: { width: 1280, height: 720 }, 
-        audio: true 
-      });
-      
-      streamRef.current = mediaStream;
-      
-      toast.dismiss('cam');
-      toast.success('Camera ready! Starting live session...');
 
-      // Start session on backend FIRST
-      const { data } = await API.post('/live/start', { title });
+    const toastId = toast.loading('Accessing camera...');
+
+    try {
+      // Step 1: Get camera stream
+      const mediaStream = await navigator.mediaDevices.getUserMedia({
+        video: { width: 1280, height: 720 },
+        audio: true,
+      });
+      streamRef.current = mediaStream;
+      toast.loading('Camera ready — connecting to server...', { id: toastId });
+
+      // Step 2: Start session on backend
+      // If Render is slow (cold start), this can take 10-15s — we wait
+      let data;
+      try {
+        const res = await API.post('/live/start', { title });
+        data = res.data;
+      } catch (apiErr) {
+        // Surface the real error
+        const msg = apiErr?.response?.data?.message || apiErr?.message || 'Unknown server error';
+        toast.error(`Server error: ${msg}`, { id: toastId });
+        // Stop camera since we can't go live
+        mediaStream.getTracks().forEach(t => t.stop());
+        streamRef.current = null;
+        return;
+      }
+
+      // Step 3: Store session IDs
+      sessionIdRef.current = data._id;
       setSessionId(data._id);
       setRoomId(data.roomId);
+
+      // Step 4: Go live — video callback ref handles stream attachment
       setIsLive(true);
-      setCameraReady(true);
 
-      // Now video element exists — attach stream
-      setTimeout(() => {
-        if (videoRef.current) {
-          videoRef.current.srcObject = mediaStream;
-          videoRef.current.play().catch(() => {});
-        }
-      }, 300);
-
-      // Join socket room
-      socketRef.current.emit('join-room', { 
-        roomId: data.roomId, 
-        userId: user._id, 
-        userName: user.name 
+      // Step 5: Join socket room
+      socketRef.current.emit('join-room', {
+        roomId: data.roomId,
+        userId: user._id,
+        userName: user.name,
       });
 
-      // Start duration timer
+      // Step 6: Start timer
       timerRef.current = setInterval(() => setDuration(d => d + 1), 1000);
-      toast.success('You are LIVE! 🔴');
+
+      toast.success('You are LIVE! 🔴', { id: toastId });
 
     } catch (err) {
-      toast.dismiss('cam');
+      toast.dismiss(toastId);
       if (err.name === 'NotAllowedError') {
-        toast.error('Camera/mic permission denied! Please allow access in your browser settings.');
+        toast.error('Camera/mic permission denied. Allow access in browser settings.');
       } else if (err.name === 'NotFoundError') {
-        toast.error('No camera found! Please connect a camera and try again.');
+        toast.error('No camera found. Connect a camera and try again.');
       } else {
-        toast.error('Failed to start: ' + err.message);
+        toast.error('Failed to start: ' + (err.message || 'Unknown error'));
       }
     }
   };
@@ -154,32 +152,30 @@ export default function TutorLive() {
     try {
       streamRef.current?.getTracks().forEach(t => t.stop());
       clearInterval(timerRef.current);
-      
+
       if (roomId) {
         socketRef.current.emit('leave-room', { roomId, userName: user.name });
       }
-      
-      // End session on backend using correct route with session ID
-      if (sessionId) {
-        await API.put(`/live/${sessionId}/end`).catch(() => {});
+
+      if (sessionIdRef.current) {
+        await API.put(`/live/${sessionIdRef.current}/end`).catch(() => {});
       }
 
-      // Close all peer connections
       Object.values(peerRefs.current).forEach(pc => pc.close());
       peerRefs.current = {};
 
       setIsLive(false);
       setSessionId(null);
+      sessionIdRef.current = null;
       setRoomId(null);
-      setCameraReady(false);
       setDuration(0);
       setViewers(0);
       setChatMessages([]);
       streamRef.current = null;
-      
-      toast.success('Session ended! Great work 👏');
+
+      toast.success('Session ended!');
       navigate('/tutor');
-    } catch (err) {
+    } catch {
       toast.error('Error ending session');
       navigate('/tutor');
     }
@@ -235,7 +231,7 @@ export default function TutorLive() {
             <div style={{ fontSize: 80, marginBottom: 24, display: 'inline-block' }}>🎙️</div>
             <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 32, fontWeight: 700, marginBottom: 12 }}>Ready to go live?</h2>
             <p style={{ color: 'rgba(255,255,255,0.4)', marginBottom: 40, fontSize: 15 }}>Your enrolled students will get an email the moment you start.</p>
-            
+
             <div style={{ background: 'rgba(14,11,26,0.7)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 24, padding: 32, textAlign: 'left' }}>
               <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.3)', marginBottom: 10, letterSpacing: 1, textTransform: 'uppercase' }}>Session Title *</label>
               <input value={title} onChange={e => setTitle(e.target.value)}
@@ -263,16 +259,10 @@ export default function TutorLive() {
         </div>
       ) : (
         <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 340px', overflow: 'hidden' }}>
-          {/* Video */}
+          {/* Video — callback ref attaches stream the instant this mounts */}
           <div style={{ background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
-            <video ref={videoRef} autoPlay muted playsInline
+            <video ref={videoCallbackRef} autoPlay muted playsInline
               style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-            {!cameraReady && (
-              <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 12, background: '#000' }}>
-                <div style={{ fontSize: 48 }}>📷</div>
-                <p style={{ color: 'rgba(255,255,255,0.5)' }}>Starting camera...</p>
-              </div>
-            )}
             <div style={{ position: 'absolute', top: 20, left: 20, display: 'flex', alignItems: 'center', gap: 8, padding: '8px 16px', background: 'rgba(0,0,0,0.7)', borderRadius: 99 }}>
               <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#ff2020', display: 'inline-block' }} />
               <span style={{ color: 'white', fontWeight: 800, fontSize: 13 }}>LIVE · {viewers} watching</span>
