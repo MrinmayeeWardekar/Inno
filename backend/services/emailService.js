@@ -1,10 +1,7 @@
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: { user: process.env.GMAIL_USER, pass: process.env.GMAIL_PASS },
-  tls: { rejectUnauthorized: false }
-});
+const FROM = 'InnoVenture <noreply@innoventurehub.in>';
 
 // ─── HELPERS ────────────────────────────────────────────────────────────────
 
@@ -17,7 +14,7 @@ const header = (gradient, emoji, title, subtitle) => `
 
 const footer = () => `
   <div style="padding:24px 40px;border-top:1px solid rgba(255,255,255,0.06);text-align:center">
-    <p style="color:rgba(255,255,255,0.2);font-size:12px;margin:0">© 2025 InnoVenture · Made with 💜 for learners everywhere</p>
+    <p style="color:rgba(255,255,255,0.2);font-size:12px;margin:0">© 2026 InnoVenture · Made with 💜 for learners everywhere</p>
   </div>`;
 
 const button = (url, text, gradient) => `
@@ -40,9 +37,10 @@ const reasonBox = (reason) => `
 const wrap = (content) => `<!DOCTYPE html><html><body style="margin:0;padding:0;background:#080714;font-family:'DM Sans',Arial,sans-serif">
 <div style="max-width:600px;margin:0 auto;background:#080714">${content}</div></body></html>`;
 
-const send = (to, subject, html) => transporter.sendMail({
-  from: `"InnoVenture" <${process.env.GMAIL_USER}>`, to, subject, html
-});
+const send = async (to, subject, html) => {
+  const { error } = await resend.emails.send({ from: FROM, to, subject, html });
+  if (error) throw new Error(error.message);
+};
 
 // ─── WELCOME EMAILS ─────────────────────────────────────────────────────────
 
@@ -87,7 +85,7 @@ const sendTutorApprovedEmail = async (email, name) => {
     ${header('linear-gradient(135deg,#43d9ad,#7c6cff)', '🎉', 'You\'re Approved!', 'Welcome to the InnoVenture tutor family')}
     <div style="padding:40px">
       <p style="color:rgba(255,255,255,0.8);font-size:16px">Hey <strong style="color:white">${name}</strong> 👋</p>
-      <p style="color:rgba(255,255,255,0.6);font-size:15px;line-height:1.7">Great news! Your tutor application has been <strong style="color:#43d9ad">approved by our admin team</strong>. You can now create courses, upload lessons, and go live with students!</p>
+      <p style="color:rgba(255,255,255,0.6);font-size:15px;line-height:1.7">Your tutor application has been <strong style="color:#43d9ad">approved</strong>. You can now create courses, upload lessons, and go live!</p>
       ${infoBox('67,217,173', '✅', 'Account Activated', 'You are now a verified InnoVenture tutor')}
       ${infoBox('124,108,255', '📚', 'Create Your First Course', 'Head to your dashboard and start building')}
       ${infoBox('0,245,196', '💰', '80% Revenue Share', 'You keep 80% of every enrollment fee')}
@@ -105,8 +103,7 @@ const sendTutorRejectedEmail = async (email, name, reason) => {
       <p style="color:rgba(255,255,255,0.8);font-size:16px">Hey <strong style="color:white">${name}</strong>,</p>
       <p style="color:rgba(255,255,255,0.6);font-size:15px;line-height:1.7">After reviewing your tutor application, our admin team was unable to approve it at this time.</p>
       ${reasonBox(reason)}
-      <p style="color:rgba(255,255,255,0.5);font-size:14px;line-height:1.7">You are welcome to re-apply in 30 days after addressing the feedback above. In the meantime, you can continue using InnoVenture as a learner.</p>
-      ${infoBox('124,108,255', '💡', 'Want to reapply?', 'Address the feedback above and submit a new application')}
+      <p style="color:rgba(255,255,255,0.5);font-size:14px;line-height:1.7">You are welcome to re-apply in 30 days after addressing the feedback above.</p>
       ${button(process.env.FRONTEND_URL + '/dashboard', 'Continue as Learner →', 'linear-gradient(135deg,#7c6cff,#9b8cff)')}
     </div>
     ${footer()}`);
@@ -120,7 +117,7 @@ const sendCourseApprovedEmail = async (email, name, courseTitle) => {
     ${header('linear-gradient(135deg,#00f5c4,#7c6cff)', '🚀', 'Course Approved!', 'Your course is now live on InnoVenture')}
     <div style="padding:40px">
       <p style="color:rgba(255,255,255,0.8);font-size:16px">Hey <strong style="color:white">${name}</strong> 👋</p>
-      <p style="color:rgba(255,255,255,0.6);font-size:15px;line-height:1.7">Your course has been reviewed and <strong style="color:#00f5c4">approved</strong>! It is now live and visible to learners on InnoVenture.</p>
+      <p style="color:rgba(255,255,255,0.6);font-size:15px;line-height:1.7">Your course has been <strong style="color:#00f5c4">approved</strong> and is now live!</p>
       <div style="background:rgba(0,245,196,0.06);border:1px solid rgba(0,245,196,0.2);border-radius:16px;padding:20px 24px;margin:20px 0;text-align:center">
         <div style="color:rgba(255,255,255,0.4);font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px">COURSE NOW LIVE</div>
         <div style="color:#00f5c4;font-size:18px;font-weight:900">${courseTitle}</div>
@@ -138,13 +135,11 @@ const sendCourseRejectedEmail = async (email, name, courseTitle, reason) => {
     ${header('linear-gradient(135deg,#2d1f4e,#1a1830)', '📋', 'Course Needs Changes', 'Your course requires some updates')}
     <div style="padding:40px">
       <p style="color:rgba(255,255,255,0.8);font-size:16px">Hey <strong style="color:white">${name}</strong>,</p>
-      <p style="color:rgba(255,255,255,0.6);font-size:15px;line-height:1.7">Our admin team reviewed your course and needs some changes before it can go live.</p>
+      <p style="color:rgba(255,255,255,0.6);font-size:15px;line-height:1.7">Our admin team needs some changes before your course can go live.</p>
       <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:20px 24px;margin:20px 0;text-align:center">
-        <div style="color:rgba(255,255,255,0.4);font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px">COURSE UNDER REVIEW</div>
         <div style="color:white;font-size:18px;font-weight:900">${courseTitle}</div>
       </div>
       ${reasonBox(reason)}
-      ${infoBox('246,173,85', '✏️', 'Make the Changes', 'Edit your course and resubmit for review')}
       ${button(process.env.FRONTEND_URL + '/tutor', 'Edit Your Course →', 'linear-gradient(135deg,#f6ad55,#ff6b9d)')}
     </div>
     ${footer()}`);
@@ -158,7 +153,6 @@ const sendEnrollmentEmail = async (email, name, courseTitle, tutorName) => {
     ${header('linear-gradient(135deg,#00f5c4,#7c6cff)', '🎉', "You're Enrolled!", 'Get ready to level up your skills')}
     <div style="padding:40px">
       <p style="color:rgba(255,255,255,0.8);font-size:16px">Hey <strong style="color:white">${name}</strong> 🎓</p>
-      <p style="color:rgba(255,255,255,0.5);font-size:15px;line-height:1.7">You have successfully enrolled in:</p>
       <div style="background:rgba(0,245,196,0.06);border:1px solid rgba(0,245,196,0.2);border-radius:20px;padding:24px;margin:20px 0;text-align:center">
         <div style="color:#00f5c4;font-size:20px;font-weight:900;margin-bottom:6px">${courseTitle}</div>
         <div style="color:rgba(255,255,255,0.4);font-size:13px">by ${tutorName || 'InnoVenture Tutor'}</div>
@@ -178,7 +172,6 @@ const sendNewEnrollmentToTutorEmail = async (email, tutorName, learnerName, cour
       <p style="color:rgba(255,255,255,0.8);font-size:16px">Hey <strong style="color:white">${tutorName}</strong> 👋</p>
       <p style="color:rgba(255,255,255,0.6);font-size:15px;line-height:1.7"><strong style="color:white">${learnerName}</strong> just enrolled in your course!</p>
       <div style="background:rgba(124,108,255,0.06);border:1px solid rgba(124,108,255,0.2);border-radius:16px;padding:20px 24px;margin:20px 0;text-align:center">
-        <div style="color:rgba(255,255,255,0.4);font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px">COURSE</div>
         <div style="color:#a89cff;font-size:18px;font-weight:900;margin-bottom:8px">${courseTitle}</div>
         <div style="color:#00f5c4;font-size:24px;font-weight:900">${totalEnrollments} students</div>
         <div style="color:rgba(255,255,255,0.4);font-size:12px">total enrolled</div>
@@ -193,7 +186,7 @@ const sendNewEnrollmentToTutorEmail = async (email, tutorName, learnerName, cour
 
 const sendLiveSessionEmail = async (email, name, tutorName, sessionTitle, sessionTime, roomId) => {
   const html = wrap(`
-    ${header('linear-gradient(135deg,#ff6b9d,#7c6cff)', '🔴', 'Live Session Starting!', 'Your tutor is going live soon')}
+    ${header('linear-gradient(135deg,#ff6b9d,#7c6cff)', '🔴', 'Live Session Starting!', 'Your tutor is going live now')}
     <div style="padding:40px">
       <p style="color:rgba(255,255,255,0.8);font-size:16px">Hey <strong style="color:white">${name}</strong> 👋</p>
       <p style="color:rgba(255,255,255,0.6);font-size:15px;line-height:1.7"><strong style="color:white">${tutorName}</strong> is starting a live session!</p>
@@ -202,84 +195,23 @@ const sendLiveSessionEmail = async (email, name, tutorName, sessionTitle, sessio
         <div style="color:rgba(255,255,255,0.4);font-size:13px;margin-bottom:4px">👨‍🏫 ${tutorName}</div>
         <div style="color:#ff6b9d;font-size:13px;font-weight:700">🕐 ${sessionTime}</div>
       </div>
-      ${infoBox('255,107,157', '💬', 'Live Chat', 'Ask questions in real-time during the session')}
       ${button(process.env.FRONTEND_URL + '/live/' + roomId, 'Join Live Session →', 'linear-gradient(135deg,#ff6b9d,#7c6cff)')}
     </div>
     ${footer()}`);
   await send(email, `🔴 ${tutorName} is going LIVE: ${sessionTitle}`, html);
 };
 
-// ─── ACCOUNT WARNINGS ─────────────────────────────────────────────────────────
-
-const sendAccountWarnedEmail = async (email, name, reason) => {
+const sendLiveSessionEndedEmail = async (email, studentName, tutorName, sessionTitle) => {
   const html = wrap(`
-    ${header('linear-gradient(135deg,#f6ad55,#fc8181)', '⚠️', 'Account Warning', 'Important notice about your account')}
+    ${header('linear-gradient(135deg,#7c6cff,#2d1f4e)', '🎬', 'Session Ended', 'Thanks for joining the live session')}
     <div style="padding:40px">
-      <p style="color:rgba(255,255,255,0.8);font-size:16px">Hey <strong style="color:white">${name}</strong>,</p>
-      <p style="color:rgba(255,255,255,0.6);font-size:15px;line-height:1.7">Your InnoVenture account has received a <strong style="color:#f6ad55">formal warning</strong> from our admin team.</p>
-      ${reasonBox(reason)}
-      <p style="color:rgba(255,255,255,0.5);font-size:14px;line-height:1.7">⚠️ Please note: repeated violations may result in account suspension. We encourage you to review our <strong style="color:white">community guidelines</strong>.</p>
-      ${button(process.env.FRONTEND_URL + '/dashboard', 'Review Guidelines →', 'linear-gradient(135deg,#f6ad55,#fc8181)')}
+      <p style="color:rgba(255,255,255,0.8);font-size:16px">Hey <strong style="color:white">${studentName}</strong>,</p>
+      <p style="color:rgba(255,255,255,0.6);font-size:15px;line-height:1.7"><strong style="color:white">${tutorName}</strong>'s live session "<strong style="color:white">${sessionTitle}</strong>" has ended.</p>
+      ${infoBox('124,108,255', '📚', 'Keep Learning', 'Check out more courses on InnoVenture')}
+      ${button(process.env.FRONTEND_URL + '/dashboard', 'Go to Dashboard →', 'linear-gradient(135deg,#7c6cff,#9b8cff)')}
     </div>
     ${footer()}`);
-  await send(email, '⚠️ Important: Warning issued on your InnoVenture account', html);
-};
-
-const sendAccountSuspendedEmail = async (email, name, reason) => {
-  const html = wrap(`
-    ${header('linear-gradient(135deg,#fc8181,#c53030)', '🚫', 'Account Suspended', 'Your account has been suspended')}
-    <div style="padding:40px">
-      <p style="color:rgba(255,255,255,0.8);font-size:16px">Hey <strong style="color:white">${name}</strong>,</p>
-      <p style="color:rgba(255,255,255,0.6);font-size:15px;line-height:1.7">Your InnoVenture account has been <strong style="color:#fc8181">suspended</strong> by our admin team due to violations of our platform guidelines.</p>
-      ${reasonBox(reason)}
-      <p style="color:rgba(255,255,255,0.5);font-size:14px;line-height:1.7">If you believe this is a mistake, please contact our support team by replying to this email.</p>
-    </div>
-    ${footer()}`);
-  await send(email, '🚫 Your InnoVenture account has been suspended', html);
-};
-
-// ─── ADMIN NOTIFICATION EMAILS ────────────────────────────────────────────────
-
-const sendAdminNewTutorApplicationEmail = async (adminEmail, tutorName, tutorEmail) => {
-  const html = wrap(`
-    ${header('linear-gradient(135deg,#7c6cff,#00f5c4)', '📋', 'New Tutor Application', 'A new tutor has applied to teach')}
-    <div style="padding:40px">
-      <p style="color:rgba(255,255,255,0.8);font-size:16px">New tutor application received!</p>
-      ${infoBox('124,108,255', '👨‍🏫', tutorName, tutorEmail)}
-      <p style="color:rgba(255,255,255,0.5);font-size:14px;line-height:1.7">Please review their application and approve or reject from the admin dashboard.</p>
-      ${button(process.env.FRONTEND_URL + '/admin', 'Review Application →', 'linear-gradient(135deg,#7c6cff,#00f5c4)')}
-    </div>
-    ${footer()}`);
-  await send(adminEmail, `📋 New tutor application from ${tutorName}`, html);
-};
-
-const sendAdminNewCourseEmail = async (adminEmail, tutorName, courseTitle) => {
-  const html = wrap(`
-    ${header('linear-gradient(135deg,#f6ad55,#7c6cff)', '📚', 'New Course Pending Review', 'A tutor has submitted a course for approval')}
-    <div style="padding:40px">
-      <p style="color:rgba(255,255,255,0.8);font-size:16px">A new course is waiting for your review!</p>
-      ${infoBox('246,173,85', '📚', courseTitle, `Submitted by ${tutorName}`)}
-      ${button(process.env.FRONTEND_URL + '/admin', 'Review Course →', 'linear-gradient(135deg,#f6ad55,#7c6cff)')}
-    </div>
-    ${footer()}`);
-  await send(adminEmail, `📚 New course pending review: "${courseTitle}"`, html);
-};
-
-// ─── PASSWORD RESET ───────────────────────────────────────────────────────────
-
-const sendPasswordResetEmail = async (email, name, resetUrl) => {
-  const html = wrap(`
-    ${header('linear-gradient(135deg,#1a1830,#2d1f4e)', '🔐', 'Reset Your Password', 'You requested a password reset')}
-    <div style="padding:40px">
-      <p style="color:rgba(255,255,255,0.8);font-size:16px">Hey <strong style="color:white">${name}</strong>,</p>
-      <p style="color:rgba(255,255,255,0.5);font-size:15px;line-height:1.7">Click the button below to reset your password. This link expires in <strong style="color:white">1 hour</strong>.</p>
-      ${button(resetUrl, 'Reset Password →', 'linear-gradient(135deg,#7c6cff,#9b8cff)')}
-      <div style="background:rgba(252,129,129,0.06);border:1px solid rgba(252,129,129,0.15);border-radius:14px;padding:16px;text-align:center;margin-top:24px">
-        <p style="color:rgba(255,255,255,0.4);font-size:13px;margin:0">⚠️ If you did not request this, you can safely ignore this email.</p>
-      </div>
-    </div>
-    ${footer()}`);
-  await send(email, '🔐 Reset your InnoVenture password', html);
+  await send(email, `🎬 Live session ended — ${sessionTitle}`, html);
 };
 
 // ─── CERTIFICATE EMAIL ────────────────────────────────────────────────────────
@@ -303,22 +235,90 @@ const sendCertificateEmail = async (email, name, courseTitle) => {
   await send(email, `🏆 You completed "${courseTitle}" — Certificate Ready!`, html);
 };
 
-// ─── WEEKLY PROGRESS EMAIL ────────────────────────────────────────────────────
+// ─── ACCOUNT EMAILS ───────────────────────────────────────────────────────────
+
+const sendAccountWarnedEmail = async (email, name, reason) => {
+  const html = wrap(`
+    ${header('linear-gradient(135deg,#f6ad55,#fc8181)', '⚠️', 'Account Warning', 'Important notice about your account')}
+    <div style="padding:40px">
+      <p style="color:rgba(255,255,255,0.8);font-size:16px">Hey <strong style="color:white">${name}</strong>,</p>
+      <p style="color:rgba(255,255,255,0.6);font-size:15px;line-height:1.7">Your account has received a <strong style="color:#f6ad55">formal warning</strong>.</p>
+      ${reasonBox(reason)}
+      ${button(process.env.FRONTEND_URL + '/dashboard', 'Review Guidelines →', 'linear-gradient(135deg,#f6ad55,#fc8181)')}
+    </div>
+    ${footer()}`);
+  await send(email, '⚠️ Warning issued on your InnoVenture account', html);
+};
+
+const sendAccountSuspendedEmail = async (email, name, reason) => {
+  const html = wrap(`
+    ${header('linear-gradient(135deg,#fc8181,#c53030)', '🚫', 'Account Suspended', 'Your account has been suspended')}
+    <div style="padding:40px">
+      <p style="color:rgba(255,255,255,0.8);font-size:16px">Hey <strong style="color:white">${name}</strong>,</p>
+      <p style="color:rgba(255,255,255,0.6);font-size:15px;line-height:1.7">Your account has been <strong style="color:#fc8181">suspended</strong> due to violations of our platform guidelines.</p>
+      ${reasonBox(reason)}
+      <p style="color:rgba(255,255,255,0.5);font-size:14px">If you believe this is a mistake, reply to this email.</p>
+    </div>
+    ${footer()}`);
+  await send(email, '🚫 Your InnoVenture account has been suspended', html);
+};
+
+// ─── ADMIN EMAILS ─────────────────────────────────────────────────────────────
+
+const sendAdminNewTutorApplicationEmail = async (adminEmail, tutorName, tutorEmail) => {
+  const html = wrap(`
+    ${header('linear-gradient(135deg,#7c6cff,#00f5c4)', '📋', 'New Tutor Application', 'A new tutor has applied to teach')}
+    <div style="padding:40px">
+      <p style="color:rgba(255,255,255,0.8);font-size:16px">New tutor application received!</p>
+      ${infoBox('124,108,255', '👨‍🏫', tutorName, tutorEmail)}
+      ${button(process.env.FRONTEND_URL + '/admin', 'Review Application →', 'linear-gradient(135deg,#7c6cff,#00f5c4)')}
+    </div>
+    ${footer()}`);
+  await send(adminEmail, `📋 New tutor application from ${tutorName}`, html);
+};
+
+const sendAdminNewCourseEmail = async (adminEmail, tutorName, courseTitle) => {
+  const html = wrap(`
+    ${header('linear-gradient(135deg,#f6ad55,#7c6cff)', '📚', 'New Course Pending Review', 'A tutor submitted a course for approval')}
+    <div style="padding:40px">
+      <p style="color:rgba(255,255,255,0.8);font-size:16px">A new course is waiting for your review!</p>
+      ${infoBox('246,173,85', '📚', courseTitle, `Submitted by ${tutorName}`)}
+      ${button(process.env.FRONTEND_URL + '/admin', 'Review Course →', 'linear-gradient(135deg,#f6ad55,#7c6cff)')}
+    </div>
+    ${footer()}`);
+  await send(adminEmail, `📚 New course pending review: "${courseTitle}"`, html);
+};
+
+// ─── PASSWORD RESET ───────────────────────────────────────────────────────────
+
+const sendPasswordResetEmail = async (email, name, resetUrl) => {
+  const html = wrap(`
+    ${header('linear-gradient(135deg,#1a1830,#2d1f4e)', '🔐', 'Reset Your Password', 'You requested a password reset')}
+    <div style="padding:40px">
+      <p style="color:rgba(255,255,255,0.8);font-size:16px">Hey <strong style="color:white">${name}</strong>,</p>
+      <p style="color:rgba(255,255,255,0.5);font-size:15px;line-height:1.7">Click below to reset your password. This link expires in <strong style="color:white">1 hour</strong>.</p>
+      ${button(resetUrl, 'Reset Password →', 'linear-gradient(135deg,#7c6cff,#9b8cff)')}
+      <div style="background:rgba(252,129,129,0.06);border:1px solid rgba(252,129,129,0.15);border-radius:14px;padding:16px;text-align:center;margin-top:24px">
+        <p style="color:rgba(255,255,255,0.4);font-size:13px;margin:0">⚠️ If you did not request this, ignore this email.</p>
+      </div>
+    </div>
+    ${footer()}`);
+  await send(email, '🔐 Reset your InnoVenture password', html);
+};
+
+// ─── WEEKLY PROGRESS ─────────────────────────────────────────────────────────
 
 const sendWeeklyProgressEmail = async (email, name, xpEarned, coursesProgress, rank) => {
   const html = wrap(`
     ${header('linear-gradient(135deg,#7c6cff,#00f5c4)', '📊', 'Your Weekly Progress', 'Here is how you did this week')}
     <div style="padding:40px">
       <p style="color:rgba(255,255,255,0.8);font-size:16px">Hey <strong style="color:white">${name}</strong> 👋</p>
-      <p style="color:rgba(255,255,255,0.6);font-size:15px;line-height:1.7">Here is your learning summary for this week:</p>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:24px 0">
         <div style="background:rgba(124,108,255,0.08);border:1px solid rgba(124,108,255,0.2);border-radius:16px;padding:20px;text-align:center">
-          <div style="font-size:28px;margin-bottom:6px">⭐</div>
           <div style="color:#a89cff;font-size:24px;font-weight:900">+${xpEarned}</div>
           <div style="color:rgba(255,255,255,0.4);font-size:12px">XP Earned</div>
         </div>
         <div style="background:rgba(0,245,196,0.08);border:1px solid rgba(0,245,196,0.2);border-radius:16px;padding:20px;text-align:center">
-          <div style="font-size:28px;margin-bottom:6px">🏆</div>
           <div style="color:#00f5c4;font-size:24px;font-weight:900">#${rank}</div>
           <div style="color:rgba(255,255,255,0.4);font-size:12px">Leaderboard Rank</div>
         </div>
@@ -329,20 +329,7 @@ const sendWeeklyProgressEmail = async (email, name, xpEarned, coursesProgress, r
     ${footer()}`);
   await send(email, `📊 Your weekly InnoVenture progress — +${xpEarned} XP earned!`, html);
 };
-const sendLiveSessionEndedEmail = async (to, studentName, tutorName, sessionTitle) => {
-  await transporter.sendMail({
-    from: `"InnoVenture" <${process.env.GMAIL_USER}>`,
-    to,
-    subject: `Live session ended — ${sessionTitle}`,
-    html: `<div style="font-family:sans-serif;max-width:480px;margin:0 auto">
-      <h2>Session Ended 🎬</h2>
-      <p>Hi ${studentName},</p>
-      <p><strong>${tutorName}</strong>'s live session "<strong>${sessionTitle}</strong>" has ended.</p>
-      <p>Check out their courses on InnoVenture for more learning!</p>
-      <a href="https://innoventurehub.in/dashboard" style="background:#7b5ea7;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;display:inline-block;margin-top:16px">Go to Dashboard</a>
-    </div>`
-  });
-};
+
 module.exports = {
   sendWelcomeEmail,
   sendTutorApprovedEmail,
@@ -360,5 +347,4 @@ module.exports = {
   sendPasswordResetEmail,
   sendCertificateEmail,
   sendWeeklyProgressEmail
-  
 };
