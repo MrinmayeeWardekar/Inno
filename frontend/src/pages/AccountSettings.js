@@ -5,7 +5,7 @@ import API from '../api/axios';
 import toast from 'react-hot-toast';
 
 export default function AccountSettings() {
-  const { user, logout } = useAuth();
+  const { user, logout, updateUser } = useAuth();
   const navigate = useNavigate();
   const [tab, setTab] = useState('profile');
   const [name, setName] = useState(user?.name || '');
@@ -31,8 +31,7 @@ export default function AccountSettings() {
         payload.linkedIn = linkedIn;
       }
       await API.put('/users/profile', payload);
-      const stored = JSON.parse(localStorage.getItem('innoventure_user') || '{}');
-      localStorage.setItem('innoventure_user', JSON.stringify({ ...stored, ...payload }));
+      updateUser(payload);
       toast.success('Profile updated! ✅');
     } catch (err) {
       toast.error(err.response?.data?.message || 'Update failed');
