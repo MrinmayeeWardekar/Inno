@@ -9,17 +9,30 @@ export default function AccountSettings() {
   const navigate = useNavigate();
   const [tab, setTab] = useState('profile');
   const [name, setName] = useState(user?.name || '');
+  const [bio, setBio] = useState(user?.bio || '');
+  const [location, setLocation] = useState(user?.location || '');
+  const [expertise, setExpertise] = useState(user?.expertise || '');
+  const [linkedIn, setLinkedIn] = useState(user?.linkedIn || '');
   const [passwords, setPasswords] = useState({ current: '', newPass: '', confirm: '' });
   const [loading, setLoading] = useState(false);
+
+  const isTutor = user?.role === 'tutor';
 
   const saveProfile = async (e) => {
     e.preventDefault();
     if (!name.trim()) return toast.error('Name cannot be empty');
     setLoading(true);
     try {
-      await API.put('/users/profile', { name: name.trim() });
+      const payload = { name: name.trim() };
+      if (isTutor) {
+        payload.bio = bio;
+        payload.location = location;
+        payload.expertise = expertise;
+        payload.linkedIn = linkedIn;
+      }
+      await API.put('/users/profile', payload);
       const stored = JSON.parse(localStorage.getItem('innoventure_user') || '{}');
-      localStorage.setItem('innoventure_user', JSON.stringify({ ...stored, name: name.trim() }));
+      localStorage.setItem('innoventure_user', JSON.stringify({ ...stored, ...payload }));
       toast.success('Profile updated! ✅');
     } catch (err) {
       toast.error(err.response?.data?.message || 'Update failed');
@@ -49,6 +62,9 @@ export default function AccountSettings() {
     { id: 'password', icon: '🔐', label: 'Password' },
     { id: 'danger', icon: '⚠️', label: 'Danger Zone' },
   ];
+
+  const inputStyle = { fontSize: 15, padding: '13px 16px' };
+  const labelStyle = { display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--text-dim)', marginBottom: 8, letterSpacing: 1, textTransform: 'uppercase' };
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--void)', display: 'flex', flexDirection: 'column' }}>
@@ -87,7 +103,7 @@ export default function AccountSettings() {
             ))}
           </div>
 
-          {/* User card in sidebar */}
+          {/* User card */}
           <div style={{ marginTop: 32, padding: '16px', background: 'rgba(123,94,167,0.08)', border: '1px solid rgba(123,94,167,0.15)', borderRadius: 16 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
               <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'linear-gradient(135deg,#7b5ea7,#e8547a)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 900, color: 'white', flexShrink: 0 }}>
@@ -123,7 +139,9 @@ export default function AccountSettings() {
             <div style={{ animation: 'fade-in 0.3s ease' }}>
               <div style={{ marginBottom: 28 }}>
                 <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 700, color: 'white', marginBottom: 4 }}>Your Profile</h3>
-                <p style={{ color: 'var(--text-muted)', fontSize: 14 }}>Update your display name and view account info</p>
+                <p style={{ color: 'var(--text-muted)', fontSize: 14 }}>
+                  {isTutor ? 'Update your public tutor profile — students will see this' : 'Update your display name and view account info'}
+                </p>
               </div>
 
               {/* Profile header card */}
@@ -142,25 +160,71 @@ export default function AccountSettings() {
               <div style={{ padding: '28px', background: 'rgba(14,11,26,0.7)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 20 }}>
                 <form onSubmit={saveProfile} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
                   <div>
-                    <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--text-dim)', marginBottom: 8, letterSpacing: 1, textTransform: 'uppercase' }}>Display Name</label>
-                    <input value={name} onChange={e => setName(e.target.value)} placeholder="Your full name" required style={{ fontSize: 15, padding: '13px 16px' }}
+                    <label style={labelStyle}>Display Name</label>
+                    <input value={name} onChange={e => setName(e.target.value)} placeholder="Your full name" required style={inputStyle}
                       onFocus={e => { e.target.style.borderColor = 'var(--violet-bright)'; e.target.style.boxShadow = '0 0 0 3px rgba(123,94,167,0.15)'; }}
                       onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.08)'; e.target.style.boxShadow = 'none'; }} />
                   </div>
+
                   <div>
-                    <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--text-dim)', marginBottom: 8, letterSpacing: 1, textTransform: 'uppercase' }}>Email Address (read-only)</label>
-                    <input value={user?.email || ''} readOnly style={{ fontSize: 14, padding: '13px 16px', opacity: 0.4, cursor: 'not-allowed' }} />
+                    <label style={labelStyle}>Email Address (read-only)</label>
+                    <input value={user?.email || ''} readOnly style={{ ...inputStyle, opacity: 0.4, cursor: 'not-allowed' }} />
                   </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-                    <div style={{ padding: '16px', background: 'rgba(240,192,64,0.07)', border: '1px solid rgba(240,192,64,0.15)', borderRadius: 14 }}>
-                      <div style={{ fontSize: 11, color: 'var(--text-dim)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: 1 }}>XP Points</div>
-                      <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 24, color: 'var(--gold)' }}>{user?.xp || 0}</div>
+
+                  {/* Tutor-only fields */}
+                  {isTutor && (
+                    <>
+                      <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 20 }}>
+                        <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--violet-bright)', marginBottom: 16, letterSpacing: 1, textTransform: 'uppercase' }}>👨‍🏫 Tutor Public Profile</div>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+                          <div>
+                            <label style={labelStyle}>Expertise / Tagline</label>
+                            <input value={expertise} onChange={e => setExpertise(e.target.value)} placeholder="e.g. Full Stack Developer · Python Expert" style={inputStyle}
+                              onFocus={e => { e.target.style.borderColor = 'var(--violet-bright)'; e.target.style.boxShadow = '0 0 0 3px rgba(123,94,167,0.15)'; }}
+                              onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.08)'; e.target.style.boxShadow = 'none'; }} />
+                          </div>
+
+                          <div>
+                            <label style={labelStyle}>Location</label>
+                            <input value={location} onChange={e => setLocation(e.target.value)} placeholder="e.g. Bengaluru, India" style={inputStyle}
+                              onFocus={e => { e.target.style.borderColor = 'var(--violet-bright)'; e.target.style.boxShadow = '0 0 0 3px rgba(123,94,167,0.15)'; }}
+                              onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.08)'; e.target.style.boxShadow = 'none'; }} />
+                          </div>
+
+                          <div>
+                            <label style={labelStyle}>Bio</label>
+                            <textarea value={bio} onChange={e => setBio(e.target.value)} placeholder="Tell students about yourself, your experience and teaching style..." rows={4}
+                              style={{ width: '100%', fontSize: 15, padding: '13px 16px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, color: 'white', fontFamily: 'var(--font-body)', outline: 'none', resize: 'vertical', boxSizing: 'border-box' }}
+                              onFocus={e => { e.target.style.borderColor = 'var(--violet-bright)'; e.target.style.boxShadow = '0 0 0 3px rgba(123,94,167,0.15)'; }}
+                              onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.08)'; e.target.style.boxShadow = 'none'; }} />
+                          </div>
+
+                          <div>
+                            <label style={labelStyle}>LinkedIn URL</label>
+                            <input value={linkedIn} onChange={e => setLinkedIn(e.target.value)} placeholder="https://linkedin.com/in/yourprofile" style={inputStyle}
+                              onFocus={e => { e.target.style.borderColor = 'var(--violet-bright)'; e.target.style.boxShadow = '0 0 0 3px rgba(123,94,167,0.15)'; }}
+                              onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.08)'; e.target.style.boxShadow = 'none'; }} />
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  )}
+
+                  {/* XP / Level display for learners */}
+                  {!isTutor && (
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+                      <div style={{ padding: '16px', background: 'rgba(240,192,64,0.07)', border: '1px solid rgba(240,192,64,0.15)', borderRadius: 14 }}>
+                        <div style={{ fontSize: 11, color: 'var(--text-dim)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: 1 }}>XP Points</div>
+                        <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 24, color: 'var(--gold)' }}>{user?.xp || 0}</div>
+                      </div>
+                      <div style={{ padding: '16px', background: 'rgba(123,94,167,0.07)', border: '1px solid rgba(123,94,167,0.15)', borderRadius: 14 }}>
+                        <div style={{ fontSize: 11, color: 'var(--text-dim)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: 1 }}>Level</div>
+                        <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 24, color: 'var(--violet-bright)' }}>{user?.level || 1}</div>
+                      </div>
                     </div>
-                    <div style={{ padding: '16px', background: 'rgba(123,94,167,0.07)', border: '1px solid rgba(123,94,167,0.15)', borderRadius: 14 }}>
-                      <div style={{ fontSize: 11, color: 'var(--text-dim)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: 1 }}>Level</div>
-                      <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 24, color: 'var(--violet-bright)' }}>{user?.level || 1}</div>
-                    </div>
-                  </div>
+                  )}
+
                   <button type="submit" disabled={loading} style={{ padding: '14px', background: loading ? 'rgba(123,94,167,0.3)' : 'linear-gradient(135deg,#7b5ea7,#e8547a)', border: 'none', borderRadius: 14, color: 'white', fontSize: 15, fontWeight: 800, cursor: loading ? 'wait' : 'pointer', fontFamily: 'var(--font-body)', boxShadow: loading ? 'none' : '0 4px 20px rgba(123,94,167,0.3)', transition: 'all 0.2s' }}>
                     {loading ? '⏳ Saving...' : '✅ Save Changes'}
                   </button>
@@ -184,14 +248,14 @@ export default function AccountSettings() {
                     { label: 'Confirm New Password', key: 'confirm', ph: 'Repeat new password' },
                   ].map(f => (
                     <div key={f.key}>
-                      <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--text-dim)', marginBottom: 8, letterSpacing: 1, textTransform: 'uppercase' }}>{f.label}</label>
-                      <input type="password" value={passwords[f.key]} onChange={e => setPasswords({ ...passwords, [f.key]: e.target.value })} placeholder={f.ph} required style={{ fontSize: 14, padding: '13px 16px' }}
+                      <label style={labelStyle}>{f.label}</label>
+                      <input type="password" value={passwords[f.key]} onChange={e => setPasswords({ ...passwords, [f.key]: e.target.value })} placeholder={f.ph} required style={{ ...inputStyle }}
                         onFocus={e => { e.target.style.borderColor = 'var(--violet-bright)'; e.target.style.boxShadow = '0 0 0 3px rgba(123,94,167,0.15)'; }}
                         onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.08)'; e.target.style.boxShadow = 'none'; }} />
                     </div>
                   ))}
                   <div style={{ padding: '12px 16px', background: 'rgba(0,212,255,0.05)', border: '1px solid rgba(0,212,255,0.15)', borderRadius: 10, fontSize: 12, color: 'var(--text-muted)' }}>
-                    💡 Password must be at least 8 characters with uppercase, lowercase, and numbers
+                    💡 Password must be at least 8 characters
                   </div>
                   <button type="submit" disabled={loading} style={{ padding: '14px', background: loading ? 'rgba(123,94,167,0.3)' : 'linear-gradient(135deg,#7b5ea7,#e8547a)', border: 'none', borderRadius: 14, color: 'white', fontSize: 15, fontWeight: 800, cursor: loading ? 'wait' : 'pointer', fontFamily: 'var(--font-body)', boxShadow: '0 4px 20px rgba(123,94,167,0.3)' }}>
                     {loading ? '⏳ Updating...' : '🔐 Change Password'}
