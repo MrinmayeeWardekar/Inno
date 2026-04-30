@@ -172,6 +172,46 @@ export default function PaymentPage() {
             🧪 Demo Payment (Test Mode — No real money)
           </button>
 
+          <div style={{ marginTop: 20, padding: '20px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, textAlign: 'center' }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.6)', marginBottom: 12 }}>💳 Pay via UPI</div>
+            <div style={{ background: 'white', borderRadius: 12, padding: 12, display: 'inline-block', marginBottom: 10 }}>
+              <img src={`https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=upi://pay?pa=innoventure@upi&pn=InnoVenture&am=${course?.price || 0}&cu=INR&tn=${encodeURIComponent('Course Payment - ' + (course?.title || ''))}`} alt="UPI QR Code" style={{ width: 140, height: 140, display: 'block' }} />
+            </div>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 4 }}>Scan with any UPI app</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#9d7fd4' }}>innoventure@upi</div>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 8 }}>After payment, click Demo Payment to enroll</div>
+          </div>
+
+          <div style={{ marginTop: 20, padding: '20px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, textAlign: 'center' }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.6)', marginBottom: 12 }}>💳 Pay via UPI</div>
+            <div style={{ background: 'white', borderRadius: 12, padding: 12, display: 'inline-block', marginBottom: 10 }}>
+              <img src={`https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=upi://pay?pa=innoventure@upi&pn=InnoVenture&am=${course?.price || 0}&cu=INR&tn=${encodeURIComponent('Course Payment - ' + (course?.title || ''))}`} alt="UPI QR Code" style={{ width: 140, height: 140, display: 'block' }} />
+            </div>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 4 }}>Scan with any UPI app</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#9d7fd4' }}>innoventure@upi</div>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 8 }}>After payment, click Demo Payment to enroll</div>
+          </div>
+
+          <div style={{ marginTop: 20, padding: '20px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, textAlign: 'center' }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.6)', marginBottom: 12 }}>💳 Pay via UPI</div>
+            <div style={{ background: 'white', borderRadius: 12, padding: 12, display: 'inline-block', marginBottom: 10 }}>
+              <img src={`https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=upi://pay?pa=innoventure@upi&pn=InnoVenture&am=${course?.price || 0}&cu=INR&tn=${encodeURIComponent('Course Payment - ' + (course?.title || ''))}`} alt="UPI QR Code" style={{ width: 140, height: 140, display: 'block' }} />
+            </div>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 4 }}>Scan with any UPI app</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#9d7fd4' }}>innoventure@upi</div>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 8 }}>After payment, click Demo Payment to enroll</div>
+          </div>
+
+          <div style={{ marginTop: 20, padding: '20px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, textAlign: 'center' }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.6)', marginBottom: 12 }}>💳 Pay via UPI</div>
+            <div style={{ background: 'white', borderRadius: 12, padding: 12, display: 'inline-block', marginBottom: 10 }}>
+              <img src={`https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=upi://pay?pa=innoventure@upi&pn=InnoVenture&am=${course?.price || 0}&cu=INR&tn=${encodeURIComponent('Course Payment - ' + (course?.title || ''))}`} alt="UPI QR Code" style={{ width: 140, height: 140, display: 'block' }} />
+            </div>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 4 }}>Scan with any UPI app</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#9d7fd4' }}>innoventure@upi</div>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 8 }}>After payment, click Demo Payment to enroll</div>
+          </div>
+
           <div style={{ marginTop: 20, display: 'flex', justifyContent: 'center', gap: 16 }}>
             {['🔒 SSL Secured', '↩️ 7-day refund', '🇮🇳 UPI / Cards'].map(b => (
               <span key={b} style={{ fontSize: 11, color: 'var(--text-dim)' }}>{b}</span>

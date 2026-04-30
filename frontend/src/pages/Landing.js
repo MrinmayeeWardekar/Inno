@@ -252,7 +252,13 @@ export default function Landing() {
           <span style={{ color: 'white' }}>Inno</span>
           <span style={{ background: 'linear-gradient(135deg, #9d7fd4, #e8547a)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Venture</span>
         </div>
-        <p style={{ color: 'var(--text-dim)', fontSize: 13 }}>© 2026 InnoVenture. Built with 💜 for the next generation of learners.</p>
+        <div style={{ display: 'flex', gap: 24, alignItems: 'center', flexWrap: 'wrap' }}>
+          <a href="mailto:support@innoventurehub.in" style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 6 }}>
+            📧 support@innoventurehub.in
+          </a>
+          <a href="https://instagram.com" target="_blank" rel="noreferrer" style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13, textDecoration: 'none' }}>📱 Instagram</a>
+          <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13 }}>© 2026 InnoVenture. Built with 💜</span>
+        </div>
       </footer>
 
       <style>{`
