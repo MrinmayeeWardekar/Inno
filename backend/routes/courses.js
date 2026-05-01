@@ -114,6 +114,25 @@ router.post('/:id/enroll', protect, async (req, res) => {
   } catch (err) { res.status(500).json({ message: err.message }); }
 });
 
+// Update course details
+router.put('/:id', protect, tutorOnly, uploadThumbnail.single('thumbnail'), async (req, res) => {
+  try {
+    const course = await Course.findById(req.params.id);
+    if (!course) return res.status(404).json({ message: 'Course not found' });
+    if (course.tutor.toString() !== req.user._id.toString())
+      return res.status(403).json({ message: 'Not your course' });
+    const { title, description, category, price, tags } = req.body;
+    if (title) course.title = title;
+    if (description) course.description = description;
+    if (category) course.category = category;
+    if (price !== undefined) course.price = price;
+    if (tags) course.tags = tags.split(',').map(t => t.trim());
+    if (req.file) course.thumbnail = req.file.path;
+    await course.save();
+    res.json(course);
+  } catch (err) { res.status(500).json({ message: err.message }); }
+});
+
 // Delete a lesson
 router.delete('/:id/lessons/:lessonId', protect, tutorOnly, async (req, res) => {
   try {
