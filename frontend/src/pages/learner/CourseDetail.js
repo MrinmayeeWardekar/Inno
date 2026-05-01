@@ -189,7 +189,7 @@ export default function CourseDetail() {
                   onLoad={() => { setTimeout(() => { markLesson(activeLesson._id); }, 30000); }} />
               ) : (
                 <video ref={videoRef} controls style={{ width: '100%', maxHeight: 480, display: 'block' }}
-                  src={`https://innoventure-backend.onrender.com${activeLesson.content}`}
+                  src={activeLesson.content}
                   onEnded={() => { markLesson(activeLesson._id); toast.success('Lesson complete! ⭐'); }} />
               )}
               <div style={{ padding: '16px 24px', background: 'rgba(14,11,26,0.9)' }}>
