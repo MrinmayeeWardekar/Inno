@@ -12,7 +12,7 @@ const {
 } = require('../services/emailService');
 
 const generateToken = (id) => jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' });
-const { uploadDocument } = require('../config/cloudinary');
+
 
 // Setup Google Strategy
 passport.use(new GoogleStrategy({
