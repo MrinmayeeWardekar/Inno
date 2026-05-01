@@ -56,12 +56,7 @@ passport.deserializeUser(async (id, done) => {
 });
 
 // Register
-router.post('/register', (req, res, next) => {
-  uploadDocument.array('documents', 3)(req, res, (err) => {
-    if (err) return next(); // ignore multer errors, proceed without files
-    next();
-  });
-}, async (req, res) => {
+router.post('/register', async (req, res) => {
   const { name, email, password, role } = req.body;
   try {
     const exists = await User.findOne({ email });

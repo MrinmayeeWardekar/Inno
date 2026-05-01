@@ -7,6 +7,8 @@ const check = (p) => ({ length: p.length >= 8, upper: /[A-Z]/.test(p), lower: /[
 
 export default function Register() {
   const [form, setForm] = useState({ name: '', email: '', password: '', role: 'learner' });
+  const [documents, setDocuments] = useState([]);
+  const [docError, setDocError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPass, setShowPass] = useState(false);
   const { register } = useAuth();
@@ -17,14 +19,32 @@ export default function Register() {
   const strengthColor = ['', '#ff6060', '#f6ad55', '#ffd700', '#2de08e', '#9d7fd4'][score];
   const strengthLabel = ['', 'Weak', 'Fair', 'Good', 'Strong', 'Perfect'][score];
 
+  const handleDocChange = (e) => {
+    const files = Array.from(e.target.files);
+    setDocError('');
+    const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
+    const invalid = files.find(f => !validTypes.includes(f.type));
+    if (invalid) return setDocError('Only JPG, PNG, PDF files allowed');
+    if (files.length > 3) return setDocError('Maximum 3 documents allowed');
+    setDocuments(files);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (score < 5) return toast.error('Please meet all password requirements');
+    // documents optional
     setLoading(true);
     try {
-      await register(form.name, form.email, form.password, form.role);
+      const formData = new FormData();
+      formData.append('name', form.name);
+      formData.append('email', form.email);
+      formData.append('password', form.password);
+      formData.append('role', form.role);
+      documents.forEach(doc => formData.append('documents', doc));
+      console.log('Sending:', form.name, form.email, form.password, form.role);
+      await register(formData, true);
       toast.success('Account created! Welcome to InnoVenture 🚀');
-      navigate(form.role === 'tutor' ? '/tutor' : '/dashboard');
+      navigate(form.role === 'tutor' ? '/tutor-pending' : '/dashboard');
     } catch (err) {
       toast.error(err.response?.data?.message || 'Registration failed');
     }
@@ -141,8 +161,35 @@ export default function Register() {
             </div>
 
             {form.role === 'tutor' && (
-              <div style={{ padding: '12px 14px', background: 'rgba(240,192,64,0.06)', border: '1px solid rgba(240,192,64,0.2)', borderRadius: 10, fontSize: 12, color: 'var(--gold)' }}>
-                ⏳ Tutor accounts need admin approval before going live.
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <div style={{ padding: '12px 14px', background: 'rgba(240,192,64,0.06)', border: '1px solid rgba(240,192,64,0.2)', borderRadius: 10, fontSize: 12, color: 'var(--gold)' }}>
+                  ⏳ Tutor accounts need admin approval before going live.
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--text-dim)', marginBottom: 8, letterSpacing: 1, textTransform: 'uppercase' }}>
+                    VERIFICATION DOCUMENTS <span style={{ color: '#fc8181' }}>*</span>
+                  </label>
+                  <p style={{ color: 'var(--text-dim)', fontSize: 12, marginBottom: 10, lineHeight: 1.6 }}>
+                    Upload your Government ID (Aadhaar/PAN/Passport) and one qualification certificate. Max 3 files, 10MB each. JPG, PNG or PDF.
+                  </p>
+                  <label style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '20px', background: 'rgba(20,16,34,0.8)', border: `2px dashed ${docError ? '#fc8181' : documents.length > 0 ? 'rgba(45,224,142,0.4)' : 'rgba(255,255,255,0.1)'}`, borderRadius: 12, cursor: 'pointer', transition: 'all 0.2s' }}>
+                    <span style={{ fontSize: 28 }}>{documents.length > 0 ? '✅' : '📄'}</span>
+                    <span style={{ fontSize: 13, color: documents.length > 0 ? 'var(--green)' : 'var(--text-muted)', fontWeight: 600 }}>
+                      {documents.length > 0 ? `${documents.length} file(s) selected` : 'Click to upload documents'}
+                    </span>
+                    {documents.length > 0 && (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 4, width: '100%' }}>
+                        {documents.map((f, i) => (
+                          <span key={i} style={{ fontSize: 11, color: 'var(--text-dim)', textAlign: 'center' }}>
+                            {f.name}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    <input type="file" accept=".jpg,.jpeg,.png,.pdf" multiple onChange={handleDocChange} style={{ display: 'none' }} />
+                  </label>
+                  {docError && <p style={{ color: '#fc8181', fontSize: 12, marginTop: 6 }}>{docError}</p>}
+                </div>
               </div>
             )}
 
