@@ -17,6 +17,9 @@ const userSchema = new mongoose.Schema({
   enrolledCourses: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Course' }],
   earnings: { type: Number, default: 0 },
   isSuspended: { type: Boolean, default: false },
+verificationDocuments: [{ type: String }],
+tutorRejectionReason: { type: String, default: '' },
+verificationSubmittedAt: { type: Date },
   createdAt: { type: Date, default: Date.now }
 });
 

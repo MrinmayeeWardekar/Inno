@@ -17,7 +17,9 @@ const {
 // Get pending tutors
 router.get('/tutors/pending', protect, adminOnly, async (req, res) => {
   try {
-    const tutors = await User.find({ role: 'tutor', tutorStatus: 'pending' }).select('-password');
+    const tutors = await User.find({ role: 'tutor', tutorStatus: 'pending' })
+      .select('-password')
+      .sort({ verificationSubmittedAt: 1 });
     res.json(tutors);
   } catch (err) { res.status(500).json({ message: err.message }); }
 });
@@ -26,7 +28,9 @@ router.get('/tutors/pending', protect, adminOnly, async (req, res) => {
 router.put('/tutors/:id', protect, adminOnly, async (req, res) => {
   try {
     const { status, reason } = req.body;
-    const user = await User.findByIdAndUpdate(req.params.id, { tutorStatus: status }, { new: true });
+    const updateData = { tutorStatus: status };
+    if (status === 'rejected') updateData.tutorRejectionReason = reason || 'Did not meet platform requirements';
+    const user = await User.findByIdAndUpdate(req.params.id, updateData, { new: true });
     if (status === 'approved') {
       try { await sendTutorApprovedEmail(user.email, user.name); } catch (e) { console.log('Email error:', e.message); }
     } else if (status === 'rejected') {

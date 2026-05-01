@@ -12,6 +12,7 @@ const {
 } = require('../services/emailService');
 
 const generateToken = (id) => jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' });
+const { uploadDocument } = require('../config/cloudinary');
 
 // Setup Google Strategy
 passport.use(new GoogleStrategy({
@@ -55,17 +56,21 @@ passport.deserializeUser(async (id, done) => {
 });
 
 // Register
-router.post('/register', async (req, res) => {
+router.post('/register', uploadDocument.array('documents', 3), async (req, res) => {
   const { name, email, password, role } = req.body;
   try {
     const exists = await User.findOne({ email });
     if (exists) return res.status(400).json({ message: 'Email already exists' });
     const hashed = await bcrypt.hash(password, 10);
+    const documentUrls = req.files ? req.files.map(f => f.path) : [];
+
     const user = await User.create({
       name, email, password: hashed,
       role: role || 'learner',
       tutorStatus: role === 'tutor' ? 'pending' : undefined,
-      isEmailVerified: true
+      isEmailVerified: true,
+      verificationDocuments: documentUrls,
+      verificationSubmittedAt: role === 'tutor' ? new Date() : undefined
     });
 
     // Respond immediately
@@ -73,6 +78,7 @@ router.post('/register', async (req, res) => {
       _id: user._id, name: user.name, email: user.email,
       role: user.role, xp: user.xp, level: user.level,
       badges: user.badges, tutorStatus: user.tutorStatus,
+      tutorRejectionReason: user.tutorRejectionReason,
       token: generateToken(user._id)
     });
 
@@ -80,7 +86,7 @@ router.post('/register', async (req, res) => {
     setImmediate(async () => {
       try { await sendWelcomeEmail(email, name, role); } catch(e) { console.log('Email error:', e.message); }
       if (role === 'tutor') {
-        try { await sendAdminNewTutorApplicationEmail(process.env.GMAIL_USER, name, email); } catch(e) { console.log('Email error:', e.message); }
+        try { await sendAdminNewTutorApplicationEmail(process.env.GMAIL_USER, name, email, documentUrls || []); } catch(e) { console.log('Email error:', e.message); }
       }
     });
 

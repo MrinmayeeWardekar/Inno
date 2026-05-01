@@ -26,10 +26,28 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('innoventure_token', token);
   };
 
-  const register = async (name, email, password, role) => {
-    const { data } = await API.post('/auth/register', { name, email, password, role });
+  const register = async (formDataOrName, isFormData = false, email, password, role) => {
+    let data;
+    if (isFormData) {
+      // FormData path — used when tutor uploads documents
+      const res = await API.post('/auth/register', formDataOrName, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      data = res.data;
+    } else {
+      // JSON path — used for learners or Google OAuth
+      const res = await API.post('/auth/register', {
+        name: formDataOrName, email, password, role
+      });
+      data = res.data;
+    }
     if (data.token) {
-      const u = { _id: data._id, name: data.name, email: data.email, role: data.role, xp: data.xp, level: data.level, badges: data.badges, tutorStatus: data.tutorStatus };
+      const u = {
+        _id: data._id, name: data.name, email: data.email,
+        role: data.role, xp: data.xp, level: data.level,
+        badges: data.badges, tutorStatus: data.tutorStatus,
+        tutorRejectionReason: data.tutorRejectionReason
+      };
       setUser(u);
       localStorage.setItem('innoventure_user', JSON.stringify(u));
       localStorage.setItem('innoventure_token', data.token);

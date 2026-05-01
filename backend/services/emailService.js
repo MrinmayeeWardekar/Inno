@@ -265,13 +265,26 @@ const sendAccountSuspendedEmail = async (email, name, reason) => {
 
 // ─── ADMIN EMAILS ─────────────────────────────────────────────────────────────
 
-const sendAdminNewTutorApplicationEmail = async (adminEmail, tutorName, tutorEmail) => {
+const sendAdminNewTutorApplicationEmail = async (adminEmail, tutorName, tutorEmail, documentUrls = []) => {
+  const docsHtml = documentUrls.length > 0
+    ? `<div style="margin:20px 0">
+        <div style="color:rgba(255,255,255,0.4);font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:10px">SUBMITTED DOCUMENTS</div>
+        ${documentUrls.map((url, i) => `
+          <a href="${url}" target="_blank" style="display:block;padding:12px 16px;background:rgba(0,245,196,0.06);border:1px solid rgba(0,245,196,0.2);border-radius:10px;color:#00f5c4;text-decoration:none;font-size:13px;margin-bottom:8px">
+            📄 View Document ${i + 1} →
+          </a>`).join('')}
+       </div>`
+    : `<div style="padding:12px 16px;background:rgba(252,129,129,0.06);border:1px solid rgba(252,129,129,0.2);border-radius:10px;margin:20px 0;color:#fc8181;font-size:13px">
+         ⚠️ No documents submitted
+       </div>`;
+
   const html = wrap(`
     ${header('linear-gradient(135deg,#7c6cff,#00f5c4)', '📋', 'New Tutor Application', 'A new tutor has applied to teach')}
     <div style="padding:40px">
       <p style="color:rgba(255,255,255,0.8);font-size:16px">New tutor application received!</p>
       ${infoBox('124,108,255', '👨‍🏫', tutorName, tutorEmail)}
-      ${button(process.env.FRONTEND_URL + '/admin', 'Review Application →', 'linear-gradient(135deg,#7c6cff,#00f5c4)')}
+      ${docsHtml}
+      ${button(process.env.FRONTEND_URL + '/admin', 'Review in Dashboard →', 'linear-gradient(135deg,#7c6cff,#00f5c4)')}
     </div>
     ${footer()}`);
   await send(adminEmail, `📋 New tutor application from ${tutorName}`, html);

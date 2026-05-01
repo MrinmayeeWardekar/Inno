@@ -5,23 +5,7 @@ const User = require('../models/User');
 const Progress = require('../models/Progress');
 const { protect, tutorOnly } = require('../middleware/auth');
 const { sendEnrollmentEmail, sendNewEnrollmentToTutorEmail } = require('../services/emailService');
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
-
-const uploadsDir = path.join(__dirname, '../uploads');
-const videosDir = path.join(__dirname, '../uploads/videos');
-const thumbsDir = path.join(__dirname, '../uploads/thumbnails');
-[uploadsDir, videosDir, thumbsDir].forEach(dir => { if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true }); });
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    if (file.mimetype.startsWith('video/')) cb(null, 'uploads/videos/');
-    else cb(null, 'uploads/thumbnails/');
-  },
-  filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
-});
-const upload = multer({ storage, limits: { fileSize: 500 * 1024 * 1024 } });
+const { uploadThumbnail, uploadVideo } = require('../config/cloudinary');
 
 // Get all approved courses
 router.get('/', async (req, res) => {
@@ -53,14 +37,14 @@ router.get('/:id', async (req, res) => {
 });
 
 // Create course with thumbnail
-router.post('/', protect, tutorOnly, upload.single('thumbnail'), async (req, res) => {
+router.post('/', protect, tutorOnly, uploadThumbnail.single('thumbnail'), async (req, res) => {
   try {
     const { title, description, category, price, tags } = req.body;
     const course = await Course.create({
       title, description, category, price: price || 0,
       tags: tags ? tags.split(',').map(t => t.trim()) : [],
       tutor: req.user._id,
-      thumbnail: req.file ? `/uploads/thumbnails/${req.file.filename}` : ''
+      thumbnail: req.file ? req.file.path : ''
     });
 
     // Respond immediately
@@ -78,7 +62,7 @@ router.post('/', protect, tutorOnly, upload.single('thumbnail'), async (req, res
 });
 
 // Add a lesson with video upload
-router.post('/:id/lessons', protect, tutorOnly, upload.single('video'), async (req, res) => {
+router.post('/:id/lessons', protect, tutorOnly, uploadVideo.single('video'), async (req, res) => {
   try {
     const course = await Course.findById(req.params.id);
     if (!course) return res.status(404).json({ message: 'Course not found' });
@@ -87,7 +71,7 @@ router.post('/:id/lessons', protect, tutorOnly, upload.single('video'), async (r
     const { title, type, duration } = req.body;
     const lesson = {
       title, type: type || 'video',
-      content: req.file ? `/uploads/videos/${req.file.filename}` : req.body.content || '',
+      content: req.file ? req.file.path : req.body.content || '',
       duration: duration || 0,
       order: course.lessons.length + 1
     };

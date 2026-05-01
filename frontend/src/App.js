@@ -27,6 +27,7 @@ import GamePage from './pages/learner/GamePage';
 
 // Tutor
 import TutorDashboard from './pages/tutor/TutorDashboard';
+import TutorPending from './pages/TutorPending';
 import TutorProfile from './pages/tutor/TutorProfile';
 import CreateCourse from './pages/tutor/CreateCourse';
 import TutorLive from './pages/tutor/TutorLive';
@@ -79,6 +80,11 @@ const PrivateRoute = ({ children, roles }) => {
   const { user } = useAuth();
   if (!user) return <Navigate to="/login" replace />;
   if (roles && !roles.includes(user.role)) return <Navigate to="/" replace />;
+  if (user.role === 'tutor' && user.tutorStatus !== 'approved') {
+    if (window.location.pathname !== '/tutor-pending') {
+      return <Navigate to="/tutor-pending" replace />;
+    }
+  }
   return children;
 };
 
@@ -86,7 +92,10 @@ const PublicRoute = ({ children }) => {
   const { user } = useAuth();
   if (user) {
     if (user.role === 'admin') return <Navigate to="/admin" replace />;
-    if (user.role === 'tutor') return <Navigate to="/tutor" replace />;
+    if (user.role === 'tutor') {
+      if (user.tutorStatus === 'approved') return <Navigate to="/tutor" replace />;
+      return <Navigate to="/tutor-pending" replace />;
+    }
     return <Navigate to="/dashboard" replace />;
   }
   return children;
@@ -117,6 +126,7 @@ function AppRoutes() {
       <Route path="/settings" element={<PrivateRoute><AccountSettings /></PrivateRoute>} />
 
       {/* Tutor */}
+      <Route path="/tutor-pending" element={<PrivateRoute roles={['tutor']}><TutorPending /></PrivateRoute>} />
       <Route path="/tutor" element={<PrivateRoute roles={['tutor']}><TutorDashboard /></PrivateRoute>} />
       <Route path="/tutor/profile/:tutorId" element={<TutorProfile />} />
       <Route path="/tutor/create" element={<PrivateRoute roles={['tutor']}><CreateCourse /></PrivateRoute>} />
