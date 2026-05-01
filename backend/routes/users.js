@@ -9,7 +9,7 @@ const { protect } = require('../middleware/auth');
 // GET leaderboard
 router.get('/leaderboard', async (req, res) => {
   try {
-    const users = await User.find({ role: { $in: ['learner', 'tutor'] } })
+    const users = await User.find({ role: 'learner' })
       .select('name xp level badges role')
       .sort({ xp: -1 }).limit(50);
     res.json(users);
