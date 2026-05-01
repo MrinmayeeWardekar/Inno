@@ -137,9 +137,9 @@ export default function EditCourse() {
                   <div style={{ flex: 1 }}>
                     <div style={{ fontWeight: 700, fontSize: 15, color: 'white', marginBottom: 3 }}>{lesson.title}</div>
                     <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>{lesson.type}{lesson.duration > 0 ? ` · ${lesson.duration} min` : ''}</div>
-                    {lesson.type === 'video' && lesson.videoUrl && (
+                    {lesson.type === 'video' && lesson.content && (
                       <div style={{ marginTop: 8, borderRadius: 8, overflow: 'hidden', aspectRatio: '16/9', maxWidth: 320 }}>
-                        <iframe width="100%" height="100%" src={lesson.videoUrl} title={lesson.title} frameBorder="0" allowFullScreen style={{ display: 'block' }} />
+                        <iframe width="100%" height="100%" src={lesson.content} title={lesson.title} frameBorder="0" allowFullScreen style={{ display: 'block' }} />
                       </div>
                     )}
                   </div>
