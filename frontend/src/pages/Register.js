@@ -35,14 +35,7 @@ export default function Register() {
     // documents optional
     setLoading(true);
     try {
-      const formData = new FormData();
-      formData.append('name', form.name);
-      formData.append('email', form.email);
-      formData.append('password', form.password);
-      formData.append('role', form.role);
-      documents.forEach(doc => formData.append('documents', doc));
-      console.log('Sending:', form.name, form.email, form.password, form.role);
-      await register(formData, true);
+      await register(form.name, form.email, form.password, form.role);
       toast.success('Account created! Welcome to InnoVenture 🚀');
       navigate(form.role === 'tutor' ? '/tutor-pending' : '/dashboard');
     } catch (err) {
