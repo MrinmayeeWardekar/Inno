@@ -111,7 +111,7 @@ export default function CourseCatalog() {
                   {enrolled && (
                     <div style={{ position: 'absolute', top: 12, left: 12, zIndex: 2, padding: '4px 12px', background: 'rgba(45,224,142,0.9)', borderRadius: 99, fontSize: 11, fontWeight: 800, color: 'white' }}>✅ Enrolled</div>
                   )}
-                  <div style={{ height: 160, background: 'linear-gradient(135deg, rgba(123,94,167,0.3), rgba(232,84,122,0.2))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 56, position: 'relative', overflow: 'hidden' }}>
+                  <div style={{ height: 160, background: course.thumbnail ? 'transparent' : 'linear-gradient(135deg, rgba(123,94,167,0.3), rgba(232,84,122,0.2))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 56, position: 'relative', overflow: 'hidden' }}>
                     {course.thumbnail ? <img src={course.thumbnail} alt={course.title} style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }} /> : catEmoji(course.category)}
                     <div style={{ position: 'absolute', top: 12, right: 12, padding: '4px 12px', background: 'rgba(0,0,0,0.7)', borderRadius: 99, fontSize: 12, fontWeight: 800, color: course.price === 0 ? 'var(--green)' : 'var(--gold)', backdropFilter: 'blur(8px)' }}>
                       {course.price === 0 ? 'FREE' : `$${course.price}`}
