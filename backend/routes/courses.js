@@ -44,7 +44,7 @@ router.post('/', protect, tutorOnly, uploadThumbnail.single('thumbnail'), async 
       title, description, category, price: price || 0,
       tags: tags ? tags.split(',').map(t => t.trim()) : [],
       tutor: req.user._id,
-      thumbnail: req.file ? req.file.path : ''
+      thumbnail: req.file ? (req.file.secure_url || req.file.path) : ''
     });
 
     // Respond immediately
@@ -127,7 +127,7 @@ router.put('/:id', protect, tutorOnly, uploadThumbnail.single('thumbnail'), asyn
     if (category) course.category = category;
     if (price !== undefined) course.price = price;
     if (tags) course.tags = tags.split(',').map(t => t.trim());
-    if (req.file) course.thumbnail = req.file.path;
+    if (req.file) course.thumbnail = req.file.secure_url || req.file.path;
     await course.save();
     res.json(course);
   } catch (err) { res.status(500).json({ message: err.message }); }
