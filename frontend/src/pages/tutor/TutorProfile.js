@@ -106,7 +106,7 @@ export default function TutorProfile() {
                   onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(232,84,122,0.4)'; e.currentTarget.style.transform = 'translateY(-4px)'; }}
                   onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'; e.currentTarget.style.transform = 'translateY(0)'; }}>
                   <div style={{ height: 100, background: 'linear-gradient(135deg, rgba(232,84,122,0.25), rgba(123,94,167,0.2))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 40, position: 'relative', overflow: 'hidden' }}>
-                    {course.thumbnail ? <img src={`https://innoventure-backend.onrender.com${course.thumbnail}`} alt={course.title} style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }} /> : '📚'}
+                    {course.thumbnail ? <img src={course.thumbnail} alt={course.title} style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }} /> : '📚'}
                   </div>
                   <div style={{ padding: '14px 16px' }}>
                     <div style={{ fontWeight: 700, fontSize: 14, color: 'white', marginBottom: 6 }}>{course.title}</div>
